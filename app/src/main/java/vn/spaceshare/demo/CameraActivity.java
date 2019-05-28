@@ -1,7 +1,6 @@
 package vn.spaceshare.demo;
 
 import android.Manifest;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -20,6 +19,7 @@ import android.os.HandlerThread;
 import android.os.Trace;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
@@ -33,7 +33,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.nio.ByteBuffer;
+
 import vn.spaceshare.demo.env.ImageUtils;
 import vn.spaceshare.demo.env.Logger;
 
@@ -52,7 +54,7 @@ public abstract class CameraActivity extends AppCompatActivity
     private boolean debug = false;
     private Handler handler;
     private HandlerThread handlerThread;
-    private boolean useCamera2API;
+    protected boolean useCamera2API;
     private boolean isProcessingFrame = false;
     private byte[][] yuvBytes = new byte[3][];
     private int[] rgbBytes = null;
@@ -69,6 +71,7 @@ public abstract class CameraActivity extends AppCompatActivity
     private ImageView plusImageView, minusImageView;
     private SwitchCompat apiSwitchCompat;
     private TextView threadsTextView;
+    protected Fragment fragment;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -121,13 +124,11 @@ public abstract class CameraActivity extends AppCompatActivity
                         switch (newState) {
                             case BottomSheetBehavior.STATE_HIDDEN:
                                 break;
-                            case BottomSheetBehavior.STATE_EXPANDED:
-                            {
+                            case BottomSheetBehavior.STATE_EXPANDED: {
                                 bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_down);
                             }
                             break;
-                            case BottomSheetBehavior.STATE_COLLAPSED:
-                            {
+                            case BottomSheetBehavior.STATE_COLLAPSED: {
                                 bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
                             }
                             break;
@@ -140,7 +141,8 @@ public abstract class CameraActivity extends AppCompatActivity
                     }
 
                     @Override
-                    public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
+                    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                    }
                 });
 
         frameValueTextView = findViewById(R.id.frame_info);
@@ -166,7 +168,9 @@ public abstract class CameraActivity extends AppCompatActivity
         return yuvBytes[0];
     }
 
-    /** Callback for android.hardware.Camera API */
+    /**
+     * Callback for android.hardware.Camera API
+     */
     @Override
     public void onPreviewFrame(final byte[] bytes, final Camera camera) {
         if (isProcessingFrame) {
@@ -211,7 +215,9 @@ public abstract class CameraActivity extends AppCompatActivity
         processImage();
     }
 
-    /** Callback for Camera2 API */
+    /**
+     * Callback for Camera2 API
+     */
     @Override
     public void onImageAvailable(final ImageReader reader) {
         // We need wait until we have some size from onPreviewSizeChosen
@@ -356,7 +362,7 @@ public abstract class CameraActivity extends AppCompatActivity
                         Toast.LENGTH_LONG)
                         .show();
             }
-            requestPermissions(new String[] {PERMISSION_CAMERA}, PERMISSIONS_REQUEST);
+            requestPermissions(new String[]{PERMISSION_CAMERA}, PERMISSIONS_REQUEST);
         }
     }
 
@@ -410,7 +416,7 @@ public abstract class CameraActivity extends AppCompatActivity
     protected void setFragment() {
         String cameraId = chooseCamera();
 
-        Fragment fragment;
+
         if (useCamera2API) {
             CameraConnectionFragment camera2Fragment =
                     CameraConnectionFragment.newInstance(
@@ -433,7 +439,7 @@ public abstract class CameraActivity extends AppCompatActivity
                     new LegacyCameraConnectionFragment(this, getLayoutId(), getDesiredPreviewFrameSize());
         }
 
-        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 
     protected void fillBytes(final Plane[] planes, final byte[][] yuvBytes) {

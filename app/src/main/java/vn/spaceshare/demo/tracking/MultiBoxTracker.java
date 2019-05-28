@@ -1,29 +1,31 @@
 package vn.spaceshare.demo.tracking;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
-import android.graphics.RectF;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import vn.spaceshare.demo.OnDetectListener;
 import vn.spaceshare.demo.env.BorderedText;
 import vn.spaceshare.demo.env.ImageUtils;
 import vn.spaceshare.demo.env.Logger;
 import vn.spaceshare.demo.tflite.Classifier.Recognition;
 
-/** A tracker that handles non-max suppression and matches existing objects to new detections. */
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+/**
+ * A tracker that handles non-max suppression and matches existing objects to new detections.
+ */
 public class MultiBoxTracker {
     private static final float TEXT_SIZE_DIP = 18;
     private static final float MIN_SIZE = 16.0f;
+    private OnDetectListener listener;
+
     private static final int[] COLORS = {
             Color.BLUE,
             Color.RED,
@@ -96,9 +98,9 @@ public class MultiBoxTracker {
         }
     }
 
-    public synchronized void trackResults(final List<Recognition> results, final long timestamp) {
+    public synchronized void trackResults(final List<Recognition> results, final long timestamp, Context context) {
         logger.i("Processing %d results from %d", results.size(), timestamp);
-        processResults(results);
+        processResults(results, context);
     }
 
     private Matrix getFrameToCanvasMatrix() {
@@ -136,10 +138,13 @@ public class MultiBoxTracker {
             // labelString);
             borderedText.drawText(
                     canvas, trackedPos.left + cornerSize, trackedPos.top, labelString + "%", boxPaint);
+
+            Bitmap bitmap = Bitmap.createBitmap(500/*width*/, 500/*height*/, Bitmap.Config.ARGB_8888);
+
         }
     }
 
-    private void processResults(final List<Recognition> results) {
+    private void processResults(final List<Recognition> results, Context context) {
         final List<Pair<Float, Recognition>> rectsToTrack = new LinkedList<Pair<Float, Recognition>>();
 
         screenRects.clear();
@@ -181,9 +186,13 @@ public class MultiBoxTracker {
             trackedRecognition.color = COLORS[trackedObjects.size()];
             trackedObjects.add(trackedRecognition);
 
+            if (potential.first >= 0.5) {
+                listener.onSuccess(potential.second.getLocation());
+            }
             if (trackedObjects.size() >= COLORS.length) {
                 break;
             }
+
         }
     }
 
@@ -192,5 +201,9 @@ public class MultiBoxTracker {
         float detectionConfidence;
         int color;
         String title;
+    }
+
+    public void setListener(OnDetectListener listener) {
+        this.listener = listener;
     }
 }

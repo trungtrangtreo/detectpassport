@@ -16,13 +16,19 @@ package vn.spaceshare.demo;
  * limitations under the License.
  */
 
-import android.app.Fragment;
+import android.annotation.SuppressLint;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureRequest;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -30,15 +36,24 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+
 import vn.spaceshare.demo.customview.AutoFitTextureView;
 import vn.spaceshare.demo.env.ImageUtils;
 import vn.spaceshare.demo.env.Logger;
 
 public class LegacyCameraConnectionFragment extends Fragment {
     private static final Logger LOGGER = new Logger();
-    /** Conversion from screen rotation to JPEG orientation. */
+    /**
+     * Conversion from screen rotation to JPEG orientation.
+     */
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
     static {
@@ -51,9 +66,13 @@ public class LegacyCameraConnectionFragment extends Fragment {
     private Camera camera;
     private Camera.PreviewCallback imageListener;
     private Size desiredSize;
-    /** The layout identifier to inflate for this Fragment. */
+    /**
+     * The layout identifier to inflate for this Fragment.
+     */
     private int layout;
-    /** An {@link AutoFitTextureView} for camera preview. */
+    /**
+     * An {@link AutoFitTextureView} for camera preview.
+     */
     private AutoFitTextureView textureView;
     /**
      * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a {@link
@@ -67,7 +86,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
 
                     int index = getCameraId();
                     camera = Camera.open(index);
-
+//                    setSizeImage(camera,texture);
                     try {
                         Camera.Parameters parameters = camera.getParameters();
                         List<String> focusModes = parameters.getSupportedFocusModes();
@@ -103,7 +122,8 @@ public class LegacyCameraConnectionFragment extends Fragment {
 
                 @Override
                 public void onSurfaceTextureSizeChanged(
-                        final SurfaceTexture texture, final int width, final int height) {}
+                        final SurfaceTexture texture, final int width, final int height) {
+                }
 
                 @Override
                 public boolean onSurfaceTextureDestroyed(final SurfaceTexture texture) {
@@ -111,11 +131,19 @@ public class LegacyCameraConnectionFragment extends Fragment {
                 }
 
                 @Override
-                public void onSurfaceTextureUpdated(final SurfaceTexture texture) {}
+                public void onSurfaceTextureUpdated(final SurfaceTexture texture) {
+                }
             };
-    /** An additional thread for running tasks that shouldn't block the UI. */
+    /**
+     * An additional thread for running tasks that shouldn't block the UI.
+     */
     private HandlerThread backgroundThread;
 
+
+    public LegacyCameraConnectionFragment() {
+    }
+
+    @SuppressLint("ValidFragment")
     public LegacyCameraConnectionFragment(
             final Camera.PreviewCallback imageListener, final int layout, final Size desiredSize) {
         this.imageListener = imageListener;
@@ -155,6 +183,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
         }
     }
 
+
     @Override
     public void onPause() {
         stopCamera();
@@ -162,13 +191,46 @@ public class LegacyCameraConnectionFragment extends Fragment {
         super.onPause();
     }
 
-    /** Starts a background thread and its {@link Handler}. */
+    private void setSizeImage(Camera camera,SurfaceTexture texture) {
+        Camera.Parameters params = camera.getParameters();
+        List<Camera.Size> sizeList = params.getSupportedPictureSizes();
+        int chosenSize = getPictureSizeIndexForHeight(sizeList, 600);
+        params.setPictureSize(sizeList.get(chosenSize).width, sizeList.get(chosenSize).height);
+
+        camera.setParameters(params);
+        try {
+            camera.setPreviewTexture(texture);
+        } catch (IOException e) {
+            camera.release();
+            e.printStackTrace();
+        }
+    }
+
+    private int getPictureSizeIndexForHeight(List<Camera.Size> sizeList, int height) {
+        int chosenHeight = -1;
+        for (int i = 0; i < sizeList.size(); i++) {
+            if (sizeList.get(i).height < height) {
+                chosenHeight = i - 1;
+                if (chosenHeight == -1)
+                    chosenHeight = 0;
+                break;
+            }
+        }
+        return chosenHeight;
+    }
+
+
+    /**
+     * Starts a background thread and its {@link Handler}.
+     */
     private void startBackgroundThread() {
         backgroundThread = new HandlerThread("CameraBackground");
         backgroundThread.start();
     }
 
-    /** Stops the background thread and its {@link Handler}. */
+    /**
+     * Stops the background thread and its {@link Handler}.
+     */
     private void stopBackgroundThread() {
         backgroundThread.quitSafely();
         try {
@@ -196,4 +258,66 @@ public class LegacyCameraConnectionFragment extends Fragment {
         }
         return -1; // No camera found
     }
+
+    public void takePhoto() {
+        if (camera != null) {
+            camera.takePicture(null, null, mPicture);
+        }
+    }
+
+    private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+
+            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+            if (pictureFile == null) {
+                return;
+            }
+
+            try {
+                FileOutputStream fos = new FileOutputStream(pictureFile);
+                fos.write(data);
+                fos.close();
+            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
+            }
+        }
+    };
+
+    private static File getOutputMediaFile(int type) {
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "MyCameraApp");
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d("MyCameraApp", "failed to create directory");
+                return null;
+            }
+        }
+
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File mediaFile;
+        if (type == MEDIA_TYPE_IMAGE) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                    "IMG_" + timeStamp + ".jpg");
+        } else if (type == MEDIA_TYPE_VIDEO) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                    "VID_" + timeStamp + ".mp4");
+        } else {
+            return null;
+        }
+
+        return mediaFile;
+    }
+
+    public static final int MEDIA_TYPE_IMAGE = 1;
+    public static final int MEDIA_TYPE_VIDEO = 2;
 }

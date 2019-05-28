@@ -3,8 +3,8 @@ package vn.spaceshare.demo;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
-import android.media.ImageReader.OnImageAvailableListener;
 import android.os.SystemClock;
+import android.support.v4.app.FragmentManager;
 import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
@@ -25,19 +25,19 @@ import java.util.List;
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
  * objects.
  */
-public class DetectorActivity extends CameraActivity implements OnImageAvailableListener {
+public class DetectorActivity extends CameraActivity {
     private static final Logger LOGGER = new Logger();
 
     // Configuration values for the prepackaged SSD model.
     private static final int TF_OD_API_INPUT_SIZE = 300;
     private static final boolean TF_OD_API_IS_QUANTIZED = false;
-    private static final String TF_OD_API_MODEL_FILE = "detect.tflite";
+    private static final String TF_OD_API_MODEL_FILE = "temp_passport.tflite";
     private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
     private static final DetectorMode MODE = DetectorMode.TF_OD_API;
     // Minimum detection confidence to track a detection.
     private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
     private static final boolean MAINTAIN_ASPECT = false;
-    private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
+    private static final Size DESIRED_PREVIEW_SIZE = new Size(800, 600);
     private static final boolean SAVE_PREVIEW_BITMAP = false;
     private static final float TEXT_SIZE_DIP = 10;
     OverlayView trackingOverlay;
@@ -189,20 +189,37 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                             }
                         }
 
-                        tracker.trackResults(mappedRecognitions, currTimestamp);
+                        FragmentManager fm = getSupportFragmentManager();
+
+                        tracker.setListener(new OnDetectListener() {
+                            @Override
+                            public void onSuccess(RectF rectF) {
+                                if (useCamera2API) {
+//                                    CameraConnectionFragment fragment = (CameraConnectionFragment) fm.findFragmentById(R.id.container);
+//                                    fragment.getPicture(rectF);
+                                } else {
+                                    LegacyCameraConnectionFragment fragment = (LegacyCameraConnectionFragment) fm.findFragmentById(R.id.container);
+                                    fragment.takePhoto();
+                                }
+                            }
+                        });
+
+                        tracker.trackResults(mappedRecognitions, currTimestamp, DetectorActivity.this);
+
                         trackingOverlay.postInvalidate();
 
                         computingDetection = false;
 
-                        runOnUiThread(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        showFrameInfo(previewWidth + "x" + previewHeight);
-                                        showCropInfo(cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
-                                        showInference(lastProcessingTimeMs + "ms");
-                                    }
-                                });
+
+//                        runOnUiThread(
+//                                new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        showFrameInfo(previewWidth + "x" + previewHeight);
+//                                        showCropInfo(cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
+//                                        showInference(lastProcessingTimeMs + "ms");
+//                                    }
+//                                });
                     }
                 });
     }
@@ -232,4 +249,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     protected void setNumThreads(final int numThreads) {
         runInBackground(() -> detector.setNumThreads(numThreads));
     }
+
+
 }
