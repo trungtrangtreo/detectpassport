@@ -5,8 +5,10 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.Toast;
 import vn.spaceshare.demo.customview.OverlayView;
 import vn.spaceshare.demo.customview.OverlayView.DrawCallback;
@@ -200,6 +202,17 @@ public class DetectorActivity extends CameraActivity {
                                 } else {
                                     LegacyCameraConnectionFragment fragment = (LegacyCameraConnectionFragment) fm.findFragmentById(R.id.container);
                                     fragment.takePhoto();
+                                }
+                            }
+                        });
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mappedRecognitions.size() > 0) {
+                                    trackingOverlay.setVisibility(View.VISIBLE);
+                                } else {
+                                    trackingOverlay.setVisibility(View.GONE);
                                 }
                             }
                         });

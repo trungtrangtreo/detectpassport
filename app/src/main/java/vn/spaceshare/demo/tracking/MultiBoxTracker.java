@@ -6,6 +6,7 @@ import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
 import vn.spaceshare.demo.OnDetectListener;
@@ -13,7 +14,6 @@ import vn.spaceshare.demo.env.BorderedText;
 import vn.spaceshare.demo.env.ImageUtils;
 import vn.spaceshare.demo.env.Logger;
 import vn.spaceshare.demo.tflite.Classifier.Recognition;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -59,7 +59,6 @@ public class MultiBoxTracker {
         for (final int color : COLORS) {
             availableColors.add(color);
         }
-
         boxPaint.setColor(Color.RED);
         boxPaint.setStyle(Style.STROKE);
         boxPaint.setStrokeWidth(10.0f);
@@ -99,7 +98,7 @@ public class MultiBoxTracker {
     }
 
     public synchronized void trackResults(final List<Recognition> results, final long timestamp, Context context) {
-        logger.i("Processing %d results from %d", results.size(), timestamp);
+        Log.e("111", results.size()+"");
         processResults(results, context);
     }
 
@@ -138,9 +137,6 @@ public class MultiBoxTracker {
             // labelString);
             borderedText.drawText(
                     canvas, trackedPos.left + cornerSize, trackedPos.top, labelString + "%", boxPaint);
-
-            Bitmap bitmap = Bitmap.createBitmap(500/*width*/, 500/*height*/, Bitmap.Config.ARGB_8888);
-
         }
     }
 
@@ -188,11 +184,11 @@ public class MultiBoxTracker {
 
             if (potential.first >= 0.5) {
                 listener.onSuccess(potential.second.getLocation());
+            } else {
             }
             if (trackedObjects.size() >= COLORS.length) {
                 break;
             }
-
         }
     }
 
