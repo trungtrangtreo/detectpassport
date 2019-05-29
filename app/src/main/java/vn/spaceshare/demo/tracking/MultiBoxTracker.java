@@ -5,6 +5,7 @@ import android.graphics.*;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;

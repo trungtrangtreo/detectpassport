@@ -17,12 +17,17 @@ package vn.spaceshare.demo;
  */
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -48,6 +53,7 @@ import java.util.List;
 import vn.spaceshare.demo.customview.AutoFitTextureView;
 import vn.spaceshare.demo.env.ImageUtils;
 import vn.spaceshare.demo.env.Logger;
+import vn.spaceshare.demo.util.KeyIntent;
 
 public class LegacyCameraConnectionFragment extends Fragment {
     private static final Logger LOGGER = new Logger();
@@ -55,13 +61,6 @@ public class LegacyCameraConnectionFragment extends Fragment {
      * Conversion from screen rotation to JPEG orientation.
      */
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
-
-    static {
-        ORIENTATIONS.append(Surface.ROTATION_0, 90);
-        ORIENTATIONS.append(Surface.ROTATION_90, 0);
-        ORIENTATIONS.append(Surface.ROTATION_180, 270);
-        ORIENTATIONS.append(Surface.ROTATION_270, 180);
-    }
 
     private Camera camera;
     private Camera.PreviewCallback imageListener;
@@ -74,10 +73,13 @@ public class LegacyCameraConnectionFragment extends Fragment {
      * An {@link AutoFitTextureView} for camera preview.
      */
     private AutoFitTextureView textureView;
+
     /**
      * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a {@link
      * TextureView}.
      */
+
+
     private final TextureView.SurfaceTextureListener surfaceTextureListener =
             new TextureView.SurfaceTextureListener() {
                 @Override
@@ -86,7 +88,6 @@ public class LegacyCameraConnectionFragment extends Fragment {
 
                     int index = getCameraId();
                     camera = Camera.open(index);
-//                    setSizeImage(camera,texture);
                     try {
                         Camera.Parameters parameters = camera.getParameters();
                         List<String> focusModes = parameters.getSupportedFocusModes();
@@ -104,9 +105,25 @@ public class LegacyCameraConnectionFragment extends Fragment {
                                 CameraConnectionFragment.chooseOptimalSize(
                                         sizes, desiredSize.getWidth(), desiredSize.getHeight());
                         parameters.setPreviewSize(previewSize.getWidth(), previewSize.getHeight());
+
+                        Camera.Parameters params = camera.getParameters();
+                        List<Camera.Size> sizeList = params.getSupportedPictureSizes();
+                        int chosenSize = getPictureSizeIndexForHeight(sizeList, 1000);
+                        params.setPictureSize(sizeList.get(chosenSize).width, sizeList.get(chosenSize).height);
+
                         camera.setDisplayOrientation(90);
-                        camera.setParameters(parameters);
+                        camera.setParameters(params);
                         camera.setPreviewTexture(texture);
+                        //
+
+                        try {
+                            camera.setPreviewTexture(texture);
+                        } catch (IOException e) {
+                            camera.release();
+                            e.printStackTrace();
+                        }
+
+
                     } catch (IOException exception) {
                         camera.release();
                     }
@@ -116,7 +133,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
                     camera.addCallbackBuffer(new byte[ImageUtils.getYUVByteSize(s.height, s.width)]);
 
                     textureView.setAspectRatio(s.height, s.width);
-
+//
                     camera.startPreview();
                 }
 
@@ -176,7 +193,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
         // a camera and start preview from here (otherwise, we wait until the surface is ready in
         // the SurfaceTextureListener).
 
-        if (textureView.isAvailable()) {
+        if (textureView.isAvailable() && camera != null) {
             camera.startPreview();
         } else {
             textureView.setSurfaceTextureListener(surfaceTextureListener);
@@ -189,21 +206,6 @@ public class LegacyCameraConnectionFragment extends Fragment {
         stopCamera();
         stopBackgroundThread();
         super.onPause();
-    }
-
-    private void setSizeImage(Camera camera,SurfaceTexture texture) {
-        Camera.Parameters params = camera.getParameters();
-        List<Camera.Size> sizeList = params.getSupportedPictureSizes();
-        int chosenSize = getPictureSizeIndexForHeight(sizeList, 600);
-        params.setPictureSize(sizeList.get(chosenSize).width, sizeList.get(chosenSize).height);
-
-        camera.setParameters(params);
-        try {
-            camera.setPreviewTexture(texture);
-        } catch (IOException e) {
-            camera.release();
-            e.printStackTrace();
-        }
     }
 
     private int getPictureSizeIndexForHeight(List<Camera.Size> sizeList, int height) {
@@ -263,6 +265,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
         if (camera != null) {
             camera.takePicture(null, null, mPicture);
         }
+        camera = null;
     }
 
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
@@ -270,20 +273,27 @@ public class LegacyCameraConnectionFragment extends Fragment {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
 
-            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-            if (pictureFile == null) {
-                return;
-            }
-
             try {
+                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                if (pictureFile == null) {
+                    return;
+                }
                 FileOutputStream fos = new FileOutputStream(pictureFile);
                 fos.write(data);
                 fos.close();
+                startActivity(pictureFile);
+
             } catch (FileNotFoundException e) {
             } catch (IOException e) {
             }
         }
     };
+
+    private void startActivity(File pictureFile) {
+        Intent intent = new Intent(getContext(), UpLoadImageActivity.class);
+        intent.putExtra(KeyIntent.KEY_PATH, pictureFile.getAbsolutePath());
+        startActivity(intent);
+    }
 
     private static File getOutputMediaFile(int type) {
         // To be safe, you should check that the SDCard is mounted

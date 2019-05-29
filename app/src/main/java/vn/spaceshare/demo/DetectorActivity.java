@@ -3,6 +3,7 @@ package vn.spaceshare.demo;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -197,8 +198,8 @@ public class DetectorActivity extends CameraActivity {
                             @Override
                             public void onSuccess(RectF rectF) {
                                 if (useCamera2API) {
-//                                    CameraConnectionFragment fragment = (CameraConnectionFragment) fm.findFragmentById(R.id.container);
-//                                    fragment.getPicture(rectF);
+                                    CameraConnectionFragment fragment = (CameraConnectionFragment) fm.findFragmentById(R.id.container);
+                                    fragment.getPicture();
                                 } else {
                                     LegacyCameraConnectionFragment fragment = (LegacyCameraConnectionFragment) fm.findFragmentById(R.id.container);
                                     fragment.takePhoto();
@@ -218,21 +219,9 @@ public class DetectorActivity extends CameraActivity {
                         });
 
                         tracker.trackResults(mappedRecognitions, currTimestamp, DetectorActivity.this);
-
                         trackingOverlay.postInvalidate();
-
                         computingDetection = false;
 
-
-//                        runOnUiThread(
-//                                new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        showFrameInfo(previewWidth + "x" + previewHeight);
-//                                        showCropInfo(cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
-//                                        showInference(lastProcessingTimeMs + "ms");
-//                                    }
-//                                });
                     }
                 });
     }

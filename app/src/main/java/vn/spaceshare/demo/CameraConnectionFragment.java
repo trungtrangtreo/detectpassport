@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.*;
 import android.hardware.camera2.*;
@@ -26,9 +27,11 @@ import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.*;
+import android.view.animation.RotateAnimation;
 import android.widget.Toast;
 import vn.spaceshare.demo.customview.AutoFitTextureView;
 import vn.spaceshare.demo.env.Logger;
+import vn.spaceshare.demo.util.KeyIntent;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -45,7 +48,7 @@ public class CameraConnectionFragment extends Fragment {
      * The camera preview size will be chosen to be the smallest frame by pixel size capable of
      * containing a DESIRED_SIZE x DESIRED_SIZE square.
      */
-    private static final int MINIMUM_PREVIEW_SIZE = 320;
+    private static final int MINIMUM_PREVIEW_SIZE = 500;
 
     /**
      * Conversion from screen rotation to JPEG orientation.
@@ -211,6 +214,8 @@ public class CameraConnectionFragment extends Fragment {
         this.inputSize = inputSize;
     }
 
+
+
     /**
      * Given {@code choices} of {@code Size}s supported by a camera, chooses the smallest one whose
      * width and height are at least as large as the minimum of both, or an exact match if possible.
@@ -295,7 +300,7 @@ public class CameraConnectionFragment extends Fragment {
 
     @Override
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
-        textureView = (AutoFitTextureView) view.findViewById(R.id.texture);
+        textureView =  view.findViewById(R.id.texture);
     }
 
     @Override
@@ -599,127 +604,10 @@ public class CameraConnectionFragment extends Fragment {
         }
     }
 
-//    public void takePhoto() {
-//        try {
-//            // This is how to tell the camera to lock focus.
-//            previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
-//                    CameraMetadata.CONTROL_AF_TRIGGER_START);
-//            // Tell #mCaptureCallback to wait for the lock.
-//            captureSession.capture(previewRequestBuilder.build(), captureCallback,
-//                    backgroundHandler);
-//        } catch (CameraAccessException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    protected void takePhoto() {
-        if (null == cameraDevice) {
-            return;
-        }
-        CameraManager manager = (CameraManager) getContext().getSystemService(Context.CAMERA_SERVICE);
-        try {
-            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraDevice.getId());
-            Size[] jpegSizes = null;
-            if (characteristics != null) {
-                jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
-            }
-            int width = 640;
-            int height = 480;
-            if (jpegSizes != null && 0 < jpegSizes.length) {
-                width = jpegSizes[0].getWidth();
-                height = jpegSizes[0].getHeight();
-            }
-            ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
-            List<Surface> outputSurfaces = new ArrayList<Surface>(2);
-            outputSurfaces.add(reader.getSurface());
-            outputSurfaces.add(new Surface(textureView.getSurfaceTexture()));
-            final CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            captureBuilder.addTarget(reader.getSurface());
-            captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-            // Orientation
-            int rotation = ((AppCompatActivity) getContext()).getWindowManager().getDefaultDisplay().getRotation();
-            captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
-            final File file = new File(Environment.getExternalStorageDirectory() + "/pic.jpg");
-            ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
-                @Override
-                public void onImageAvailable(ImageReader reader) {
-                    Image image = null;
-                    try {
-                        image = reader.acquireLatestImage();
-                        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                        byte[] bytes = new byte[buffer.capacity()];
-                        buffer.get(bytes);
-                        save(bytes);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        if (image != null) {
-                            image.close();
-                        }
-                    }
-                }
-
-                private void save(byte[] bytes) throws IOException {
-                    OutputStream output = null;
-                    try {
-                        output = new FileOutputStream(file);
-                        output.write(bytes);
-                    } finally {
-                        if (null != output) {
-                            output.close();
-                        }
-                    }
-                }
-            };
-            reader.setOnImageAvailableListener(readerListener, backgroundHandler);
-            final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
-                @Override
-                public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
-                    super.onCaptureCompleted(session, request, result);
-                    Toast.makeText(getContext(), "Saved:" + file, Toast.LENGTH_SHORT).show();
-//                    createCameraPreviewSession();
-                }
-            };
-            cameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
-                @Override
-                public void onConfigured(CameraCaptureSession session) {
-                    try {
-                        session.capture(captureBuilder.build(), captureListener, backgroundHandler);
-                    } catch (CameraAccessException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onConfigureFailed(CameraCaptureSession session) {
-                }
-            }, backgroundHandler);
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onTakePhotoButtonClicked() {
-        FileOutputStream outputPhoto = null;
-        try {
-            File storageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File galleryFolder = new File(storageDirectory, getResources().getString(R.string.app_name));
-            outputPhoto = new FileOutputStream(createImageFile(galleryFolder));
-            textureView.getBitmap()
-                    .compress(Bitmap.CompressFormat.PNG, 100, outputPhoto);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (outputPhoto != null) {
-                    outputPhoto.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    private void startActivity(File pictureFile) {
+        Intent intent = new Intent(getContext(), UpLoadImageActivity.class);
+        intent.putExtra(KeyIntent.KEY_PATH, pictureFile.getAbsolutePath());
+        startActivity(intent);
     }
 
     private File createImageFile(File galleryFolder) throws IOException {
@@ -731,7 +619,7 @@ public class CameraConnectionFragment extends Fragment {
     private Size jpegSizes[] = null;
     private Size previewsize;
 
-    void getPicture(RectF rectF) {
+    void getPicture() {
         if (cameraDevice == null) {
             return;
         }
@@ -754,7 +642,7 @@ public class CameraConnectionFragment extends Fragment {
             capturebuilder.addTarget(reader.getSurface());
             capturebuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
             int rotation = ((AppCompatActivity) getContext()).getWindowManager().getDefaultDisplay().getRotation();
-            capturebuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
+//            capturebuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
             ImageReader.OnImageAvailableListener imageAvailableListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
@@ -776,6 +664,11 @@ public class CameraConnectionFragment extends Fragment {
                 void save(byte[] bytes) {
 
                     File file12 = getOutputMediaFile();
+
+                    if (file12 != null) {
+                        startActivity(file12);
+                    }
+
                     OutputStream outputStream = null;
                     try {
                         outputStream = new FileOutputStream(file12);
