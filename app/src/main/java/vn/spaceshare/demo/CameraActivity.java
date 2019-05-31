@@ -30,11 +30,7 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -78,6 +74,7 @@ public abstract class CameraActivity extends AppCompatActivity
     private SwitchCompat apiSwitchCompat;
     private TextView threadsTextView;
     protected Fragment fragment;
+    protected RelativeLayout rlFrame;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -100,6 +97,7 @@ public abstract class CameraActivity extends AppCompatActivity
         gestureLayout = findViewById(R.id.gesture_layout);
         sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
         bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
+        rlFrame = findViewById(R.id.rlFrame);
 
         ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(
@@ -218,7 +216,7 @@ public abstract class CameraActivity extends AppCompatActivity
     }
 
 
-    private void checkPermission(){
+    private void checkPermission() {
         Dexter.withActivity(this)
                 .withPermissions(
                         Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -322,7 +320,6 @@ public abstract class CameraActivity extends AppCompatActivity
     public synchronized void onResume() {
         LOGGER.d("onResume " + this);
         super.onResume();
-
         handlerThread = new HandlerThread("inference");
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());

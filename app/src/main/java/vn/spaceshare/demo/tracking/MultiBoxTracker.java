@@ -10,11 +10,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
+import android.view.View;
+import android.widget.RelativeLayout;
 import vn.spaceshare.demo.OnDetectListener;
 import vn.spaceshare.demo.env.BorderedText;
 import vn.spaceshare.demo.env.ImageUtils;
 import vn.spaceshare.demo.env.Logger;
 import vn.spaceshare.demo.tflite.Classifier.Recognition;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -98,9 +101,8 @@ public class MultiBoxTracker {
         }
     }
 
-    public synchronized void trackResults(final List<Recognition> results, final long timestamp, Context context) {
-        Log.e("111", results.size()+"");
-        processResults(results, context);
+    public synchronized void trackResults(final List<Recognition> results, final long timestamp, RelativeLayout relativeLayout) {
+        processResults(results, relativeLayout);
     }
 
     private Matrix getFrameToCanvasMatrix() {
@@ -141,7 +143,7 @@ public class MultiBoxTracker {
         }
     }
 
-    private void processResults(final List<Recognition> results, Context context) {
+    private void processResults(final List<Recognition> results, RelativeLayout frame) {
         final List<Pair<Float, Recognition>> rectsToTrack = new LinkedList<Pair<Float, Recognition>>();
 
         screenRects.clear();
@@ -166,6 +168,7 @@ public class MultiBoxTracker {
                 continue;
             }
 
+
             rectsToTrack.add(new Pair<Float, Recognition>(result.getConfidence(), result));
         }
 
@@ -183,13 +186,16 @@ public class MultiBoxTracker {
             trackedRecognition.color = COLORS[trackedObjects.size()];
             trackedObjects.add(trackedRecognition);
 
-            if (potential.first >= 0.5) {
+            Rect rect = new Rect();
+            trackedRecognition.location.round(rect);
+
+            if (potential.first >= 0.5 && isViewContains(frame, rect.top, rect.left) && isViewContains(frame, rect.bottom, rect.right)) {
                 listener.onSuccess(potential.second.getLocation());
-            } else {
             }
             if (trackedObjects.size() >= COLORS.length) {
                 break;
             }
+
         }
     }
 
@@ -198,6 +204,20 @@ public class MultiBoxTracker {
         float detectionConfidence;
         int color;
         String title;
+    }
+
+    private boolean isViewContains(View view, int rx, int ry) {
+        int[] l = new int[2];
+        view.getLocationOnScreen(l);
+        int x = l[0];
+        int y = l[1];
+        int w = view.getWidth();
+        int h = view.getHeight();
+
+        if (rx < x || rx > x + w || ry < y || ry > y + h) {
+            return false;
+        }
+        return true;
     }
 
     public void setListener(OnDetectListener listener) {

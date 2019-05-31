@@ -40,9 +40,9 @@ public class DetectorActivity extends CameraActivity {
     // Minimum detection confidence to track a detection.
     private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
     private static final boolean MAINTAIN_ASPECT = false;
-    private static final Size DESIRED_PREVIEW_SIZE = new Size(800, 600);
-    private static final boolean SAVE_PREVIEW_BITMAP = false;
-    private static final float TEXT_SIZE_DIP = 10;
+    private static final Size DESIRED_PREVIEW_SIZE = new Size(1000, 1000);
+    private static final boolean SAVE_PREVIEW_BITMAP = true;
+    private static final float TEXT_SIZE_DIP = 100;
     OverlayView trackingOverlay;
     private Integer sensorOrientation;
 
@@ -165,6 +165,7 @@ public class DetectorActivity extends CameraActivity {
 
                         cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
                         final Canvas canvas = new Canvas(cropCopyBitmap);
+
                         final Paint paint = new Paint();
                         paint.setColor(Color.RED);
                         paint.setStyle(Style.STROKE);
@@ -183,6 +184,10 @@ public class DetectorActivity extends CameraActivity {
                         for (final Classifier.Recognition result : results) {
                             final RectF location = result.getLocation();
                             if (location != null && result.getConfidence() >= minimumConfidence) {
+
+
+                                Rect rect = new Rect();
+                                location.round(rect);
                                 canvas.drawRect(location, paint);
 
                                 cropToFrameTransform.mapRect(location);
@@ -200,6 +205,12 @@ public class DetectorActivity extends CameraActivity {
                                 if (useCamera2API) {
                                     CameraConnectionFragment fragment = (CameraConnectionFragment) fm.findFragmentById(R.id.container);
                                     fragment.getPicture();
+
+                                    Rect rect = new Rect();
+                                    rectF.round(rect);
+
+//                                  Log.e("location", rect.top + " " + rect.right + " " + rect.bottom + " " + rect.left);
+//                                  Log.e("location", rect.width() + " " + rect.height());
                                 } else {
                                     LegacyCameraConnectionFragment fragment = (LegacyCameraConnectionFragment) fm.findFragmentById(R.id.container);
                                     fragment.takePhoto();
@@ -218,10 +229,9 @@ public class DetectorActivity extends CameraActivity {
                             }
                         });
 
-                        tracker.trackResults(mappedRecognitions, currTimestamp, DetectorActivity.this);
+                        tracker.trackResults(mappedRecognitions, currTimestamp, rlFrame);
                         trackingOverlay.postInvalidate();
                         computingDetection = false;
-
                     }
                 });
     }
@@ -251,6 +261,4 @@ public class DetectorActivity extends CameraActivity {
     protected void setNumThreads(final int numThreads) {
         runInBackground(() -> detector.setNumThreads(numThreads));
     }
-
-
 }

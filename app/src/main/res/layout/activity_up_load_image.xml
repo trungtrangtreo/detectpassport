@@ -9,7 +9,18 @@
     <ImageView
             android:id="@+id/ivImage"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:cropToPadding="false"
+            android:scaleType="fitXY"/>
+    <RelativeLayout
+            android:id="@+id/rlFrame"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:background="@drawable/bg_line_frame"
+            android:layout_margin="20dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone"/>
 
 
 </RelativeLayout>
