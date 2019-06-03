@@ -4,16 +4,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.Point;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.view.Display;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.util.Log;
+import android.view.View;
+import android.widget.*;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -33,7 +32,9 @@ public class UpLoadImageActivity extends AppCompatActivity {
 
     private String path = "";
     private ImageView ivImage;
-    private RelativeLayout rlFrame;
+    private Button btnUpload;
+    private ProgressBar progressBar;
+    private LinearLayout llProgressbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,29 +42,25 @@ public class UpLoadImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_up_load_image);
 
         ivImage = findViewById(R.id.ivImage);
-        rlFrame = findViewById(R.id.rlFrame);
+        btnUpload = findViewById(R.id.btnUpload);
+        progressBar = findViewById(R.id.progressBar);
+        llProgressbar = findViewById(R.id.llProgressbar);
 
         if (getIntent() != null) {
             path = getIntent().getStringExtra(KeyIntent.KEY_PATH);
             File file = new File(path);
 //          verifyPassport("http://192.168.0.247:5000/passport", file);
 
-            int[] l = new int[2];
-            rlFrame.getLocationOnScreen(l);
-
-            Display display = getWindowManager().getDefaultDisplay();
-            Point size = new Point();
-            display.getSize(size);
-            int w = size.x;
-//
-            Bitmap bitmap = exifToDegrees(path);
-            int x = l[0];
-            int y = l[1];
-//            int w = rlFrame.getWidth();
-            int h = rlFrame.getHeight();
-            Bitmap bitmapCustom = Bitmap.createBitmap(bitmap, x, y, w, convertDpToPx(300));
-            ivImage.setImageBitmap(bitmapCustom);
+//          Bitmap bitmapCustom = Bitmap.createBitmap(bitmap, x, y, w, convertDpToPx(300));
+            ivImage.setImageBitmap(exifToDegrees(path));
 //            cropImage(Uri.parse(path));
+
+            btnUpload.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    verifyPassport("http://27.72.88.246:5000/passport", file);
+                }
+            });
 
         }
     }
@@ -106,6 +103,8 @@ public class UpLoadImageActivity extends AppCompatActivity {
         Bitmap rotatedBitmap;
         Bitmap bitmap = BitmapFactory.decodeFile(photoPath);
 
+        Log.d("trung", orientation + "");
+
         switch (orientation) {
 
             case ExifInterface.ORIENTATION_ROTATE_90:
@@ -123,6 +122,10 @@ public class UpLoadImageActivity extends AppCompatActivity {
             case ExifInterface.ORIENTATION_NORMAL:
                 rotatedBitmap = rotateImage(bitmap, 90);
                 break;
+
+            case ExifInterface.ORIENTATION_UNDEFINED:
+                rotatedBitmap = rotateImage(bitmap, 90);
+                break;
             default:
                 rotatedBitmap = bitmap;
         }
@@ -138,6 +141,8 @@ public class UpLoadImageActivity extends AppCompatActivity {
 
 
     private void verifyPassport(String url, File passport) {
+        btnUpload.setEnabled(false);
+        llProgressbar.setVisibility(View.VISIBLE);
         ApiService apiService = ApiClient.getClient(getApplicationContext())
                 .create(ApiService.class);
 
@@ -153,15 +158,25 @@ public class UpLoadImageActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<PassportVerify>() {
-
                     @Override
                     public void onSuccess(PassportVerify passportVerify) {
+                        if (passportVerify.getInfoPassportV2() != null) {
+                            Intent intent = new Intent(getApplicationContext(), PassportInfoActivity.class);
+                            intent.putExtra(Const.PASSPORT_INFO, passportVerify.getInfoPassportV2());
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(UpLoadImageActivity.this, "Not get passport info. Please try again", Toast.LENGTH_SHORT).show();
+                        }
+                        llProgressbar.setVisibility(View.GONE);
+                        btnUpload.setEnabled(true);
 
                     }
 
                     @Override
                     public void onError(Throwable e) {
-
+                        Toast.makeText(UpLoadImageActivity.this, "Not get passport info. Please try again", Toast.LENGTH_SHORT).show();
+                        llProgressbar.setVisibility(View.GONE);
+                        btnUpload.setEnabled(true);
                     }
                 });
     }

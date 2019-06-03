@@ -22,7 +22,38 @@ public class PassportVerify {
     val infoPassport: PassportInfo? = null*/
 
     @Expose
-    @SerializedName("info_passport_v2")
+    @SerializedName("info_passport")
     PassportInfo infoPassportV2;
 
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public Boolean getFaceMatching() {
+        return faceMatching;
+    }
+
+    public void setFaceMatching(Boolean faceMatching) {
+        this.faceMatching = faceMatching;
+    }
+
+    public PassportInfo getInfoPassportV2() {
+        return infoPassportV2;
+    }
+
+    public void setInfoPassportV2(PassportInfo infoPassportV2) {
+        this.infoPassportV2 = infoPassportV2;
+    }
 }

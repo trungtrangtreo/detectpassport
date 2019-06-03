@@ -17,6 +17,8 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:replace="android:appComponentFactory">
+        <activity android:name=".PassportInfoActivity">
+        </activity>
         <activity android:name=".UpLoadImageActivity">
         </activity>
         <activity
@@ -39,7 +41,6 @@
                     android:name="android.support.FILE_PROVIDER_PATHS"
                     android:resource="@xml/provider_paths"/>
         </provider>
-
     </application>
 
 </manifest>

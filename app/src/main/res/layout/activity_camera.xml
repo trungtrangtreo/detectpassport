@@ -35,14 +35,36 @@
                      android:layout_width="match_parent"
                      android:layout_height="match_parent"
                      tools:context="org.tensorflow.demo.CameraActivity"/>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical"
+                      android:layout_centerInParent="true">
+            <TextView
+                    android:id="@+id/tvPlacePassport"
+                    android:text="Please place your passport in the red frame"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFF"
+                    android:textSize="18sp"
+                    android:layout_gravity="center"/>
 
-        <RelativeLayout
-                android:id="@+id/rlFrame"
-                android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:background="@drawable/bg_line_frame"
-                android:layout_margin="20dp"
-                android:layout_centerInParent="true"/>
+            <RelativeLayout
+                    android:id="@+id/rlFrame"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_200sdp"
+                    android:background="@drawable/bg_line_frame"
+                    android:layout_margin="20dp"/>
+            <TextView
+                    android:id="@+id/tvSuggest"
+                    android:text="Taking photos. Please do not move the camera..."
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFF"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
+
+        </LinearLayout>
+
 
         <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -52,6 +74,7 @@
                 android:background="@color/semi_transparent">
 
             <ImageView
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/tfl_logo"/>
@@ -60,6 +83,7 @@
     </RelativeLayout>
 
     <include
+            android:visibility="gone"
             android:id="@+id/bottom_sheet_layout"
             layout="@layout/layout_bottom_sheet"/>
 </android.support.design.widget.CoordinatorLayout>

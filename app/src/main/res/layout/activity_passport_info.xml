@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".PassportInfoActivity">
+
+    <include layout="@layout/layout_toolbar"/>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+        <TextView
+                android:id="@+id/tvTitleName"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="Name"
+                android:layout_centerVertical="true"
+                android:textStyle="bold"/>
+
+        <TextView
+                android:id="@+id/tvName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/tvTitleName"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="20dp"
+                android:text="No detect"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+        <TextView
+                android:id="@+id/tvTitleDateOfBirth"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="Date of birth"
+                android:layout_centerVertical="true"
+                android:textStyle="bold"/>
+
+        <TextView
+                android:id="@+id/tvDateOfBirth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/tvTitleDateOfBirth"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="20dp"
+                android:text="No detect"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+        <TextView
+                android:id="@+id/tvTitleDateOfExpiry"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="Date of expiry"
+                android:layout_centerVertical="true"
+                android:textStyle="bold"/>
+
+        <TextView
+                android:id="@+id/tvDateOfExpiry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/tvTitleDateOfExpiry"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="20dp"
+                android:text="No detect"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+        <TextView
+                android:id="@+id/tvTitleNationality"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="Nationality"
+                android:layout_centerVertical="true"
+                android:textStyle="bold"/>
+
+        <TextView
+                android:id="@+id/tvNationality"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/tvTitleNationality"
+                android:layout_centerVertical="true"
+                android:text="No detect"
+                android:layout_marginLeft="20dp"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+        <TextView
+                android:id="@+id/tvTitleSex"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="Sex"
+                android:layout_centerVertical="true"
+                android:textStyle="bold"/>
+
+        <TextView
+                android:id="@+id/tvSex"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/tvTitleSex"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="20dp"
+                android:text="No detect"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+        <TextView
+                android:id="@+id/tvTitlePassportNumber"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="Passport Number"
+                android:layout_centerVertical="true"
+                android:textStyle="bold"/>
+
+        <TextView
+                android:id="@+id/tvPassportNumber"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/tvTitlePassportNumber"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="20dp"
+                android:text="No detect"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

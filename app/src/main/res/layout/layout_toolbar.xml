@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#00bfa5">
+
+    <ImageView
+            android:id="@+id/ivBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/vt_back_white"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="3dp"/>
+
+    <TextView
+            android:id="@+id/tvTitleToolBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textColor="#fff"
+            android:textSize="16sp"
+            android:layout_centerInParent="true"/>
+
+</RelativeLayout>

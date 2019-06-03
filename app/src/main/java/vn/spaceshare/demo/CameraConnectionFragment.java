@@ -215,7 +215,6 @@ public class CameraConnectionFragment extends Fragment {
     }
 
 
-
     /**
      * Given {@code choices} of {@code Size}s supported by a camera, chooses the smallest one whose
      * width and height are at least as large as the minimum of both, or an exact match if possible.
@@ -300,7 +299,7 @@ public class CameraConnectionFragment extends Fragment {
 
     @Override
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
-        textureView =  view.findViewById(R.id.texture);
+        textureView = view.findViewById(R.id.texture);
     }
 
     @Override
@@ -729,6 +728,8 @@ public class CameraConnectionFragment extends Fragment {
 
     private File getOutputMediaFile() {
 
+        String fileName = "preview";
+
         File mediaStorageDir = new File(
                 Environment
                         .getExternalStorageDirectory(),
@@ -744,7 +745,7 @@ public class CameraConnectionFragment extends Fragment {
                 .format(new Date());
         File mediaFile;
         mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                + "IMG_" + timeStamp + ".jpg");
+                + "IMG_" + fileName + ".jpg");
         return mediaFile;
     }
 

@@ -5,7 +5,6 @@ import android.graphics.*;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -58,6 +57,7 @@ public class MultiBoxTracker {
     private int frameWidth;
     private int frameHeight;
     private int sensorOrientation;
+    private int count = 0;
 
     public MultiBoxTracker(final Context context) {
         for (final int color : COLORS) {
@@ -102,7 +102,7 @@ public class MultiBoxTracker {
     }
 
     public synchronized void trackResults(final List<Recognition> results, final long timestamp, RelativeLayout relativeLayout) {
-        processResults(results, relativeLayout);
+        processResults(results, relativeLayout, timestamp);
     }
 
     private Matrix getFrameToCanvasMatrix() {
@@ -143,7 +143,7 @@ public class MultiBoxTracker {
         }
     }
 
-    private void processResults(final List<Recognition> results, RelativeLayout frame) {
+    private void processResults(final List<Recognition> results, RelativeLayout frame, long timestamp) {
         final List<Pair<Float, Recognition>> rectsToTrack = new LinkedList<Pair<Float, Recognition>>();
 
         screenRects.clear();
@@ -172,10 +172,13 @@ public class MultiBoxTracker {
             rectsToTrack.add(new Pair<Float, Recognition>(result.getConfidence(), result));
         }
 
+
         if (rectsToTrack.isEmpty()) {
             logger.v("Nothing to track, aborting.");
+            count = 0;
             return;
         }
+
 
         trackedObjects.clear();
         for (final Pair<Float, Recognition> potential : rectsToTrack) {
@@ -189,7 +192,18 @@ public class MultiBoxTracker {
             Rect rect = new Rect();
             trackedRecognition.location.round(rect);
 
-            if (potential.first >= 0.5 && isViewContains(frame, rect.top, rect.left) && isViewContains(frame, rect.bottom, rect.right)) {
+
+            if (potential.first >= 0.5) {
+                count++;
+            }
+            Log.e("trung111", count + "");
+
+//            if (potential.first >= 0.5 && isViewContains(frame, rect.top, rect.left) && isViewContains(frame, rect.bottom, rect.right)) {
+//                listener.onSuccess(potential.second.getLocation());
+//                Log.e("111", "call");
+//            }
+
+            if (count >= 3) {
                 listener.onSuccess(potential.second.getLocation());
             }
             if (trackedObjects.size() >= COLORS.length) {
@@ -209,10 +223,10 @@ public class MultiBoxTracker {
     private boolean isViewContains(View view, int rx, int ry) {
         int[] l = new int[2];
         view.getLocationOnScreen(l);
-        int x = l[0];
-        int y = l[1];
-        int w = view.getWidth();
-        int h = view.getHeight();
+        int x = (int) (l[0] * 0.8);
+        int y = (int) (l[1] * 0.8);
+        int w = (int) (view.getWidth() * 1.5);
+        int h = (int) (view.getHeight() * 1.5);
 
         if (rx < x || rx > x + w || ry < y || ry > y + h) {
             return false;

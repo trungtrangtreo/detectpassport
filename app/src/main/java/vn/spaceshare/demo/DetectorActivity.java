@@ -130,6 +130,13 @@ public class DetectorActivity extends CameraActivity {
     }
 
     @Override
+    public synchronized void onResume() {
+        super.onResume();
+        tvSuggest.setVisibility(View.GONE);
+        tvPlacePassport.setVisibility(View.VISIBLE);
+    }
+
+    @Override
     protected void processImage() {
         ++timestamp;
         final long currTimestamp = timestamp;
@@ -203,14 +210,17 @@ public class DetectorActivity extends CameraActivity {
                             @Override
                             public void onSuccess(RectF rectF) {
                                 if (useCamera2API) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            tvSuggest.setVisibility(View.VISIBLE);
+                                            tvPlacePassport.setVisibility(View.GONE);
+                                        }
+                                    });
+
                                     CameraConnectionFragment fragment = (CameraConnectionFragment) fm.findFragmentById(R.id.container);
                                     fragment.getPicture();
-
-                                    Rect rect = new Rect();
-                                    rectF.round(rect);
-
-//                                  Log.e("location", rect.top + " " + rect.right + " " + rect.bottom + " " + rect.left);
-//                                  Log.e("location", rect.width() + " " + rect.height());
+                                    Log.e("trung", "call 1111");
                                 } else {
                                     LegacyCameraConnectionFragment fragment = (LegacyCameraConnectionFragment) fm.findFragmentById(R.id.container);
                                     fragment.takePhoto();
@@ -218,16 +228,19 @@ public class DetectorActivity extends CameraActivity {
                             }
                         });
 
+
+//
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if (mappedRecognitions.size() > 0) {
-                                    trackingOverlay.setVisibility(View.VISIBLE);
+                                    trackingOverlay.setVisibility(View.GONE);
                                 } else {
                                     trackingOverlay.setVisibility(View.GONE);
                                 }
                             }
                         });
+//                        trackingOverlay.setVisibility(View.GONE);
 
                         tracker.trackResults(mappedRecognitions, currTimestamp, rlFrame);
                         trackingOverlay.postInvalidate();

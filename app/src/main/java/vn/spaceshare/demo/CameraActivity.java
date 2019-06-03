@@ -75,6 +75,8 @@ public abstract class CameraActivity extends AppCompatActivity
     private TextView threadsTextView;
     protected Fragment fragment;
     protected RelativeLayout rlFrame;
+    protected TextView tvSuggest;
+    protected TextView tvPlacePassport;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -98,6 +100,8 @@ public abstract class CameraActivity extends AppCompatActivity
         sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
         bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
         rlFrame = findViewById(R.id.rlFrame);
+        tvSuggest = findViewById(R.id.tvSuggest);
+        tvPlacePassport = findViewById(R.id.tvPlacePassport);
 
         ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(
@@ -393,10 +397,11 @@ public abstract class CameraActivity extends AppCompatActivity
                 // Fallback to camera1 API for internal cameras that don't have full support.
                 // This should help with legacy situations where using the camera2 API causes
                 // distorted or otherwise broken previews.
-                useCamera2API =
-                        (facing == CameraCharacteristics.LENS_FACING_EXTERNAL)
-                                || isHardwareLevelSupported(
-                                characteristics, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
+//                useCamera2API =
+//                        (facing == CameraCharacteristics.LENS_FACING_EXTERNAL)
+//                                || isHardwareLevelSupported(
+//                                characteristics, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
+                useCamera2API = true;
                 LOGGER.i("Camera API lv2?: %s", useCamera2API);
                 return cameraId;
             }
@@ -427,8 +432,8 @@ public abstract class CameraActivity extends AppCompatActivity
             camera2Fragment.setCamera(cameraId);
             fragment = camera2Fragment;
         } else {
-            fragment =
-                    new LegacyCameraConnectionFragment(this, getLayoutId(), getDesiredPreviewFrameSize());
+//            fragment =
+//                    new LegacyCameraConnectionFragment(this, getLayoutId(), getDesiredPreviewFrameSize());
         }
 
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();

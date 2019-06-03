@@ -12,15 +12,39 @@
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:cropToPadding="false"
+            android:src="@mipmap/ic_launcher"
+            android:layout_above="@+id/btnUpload"
             android:scaleType="fitXY"/>
-    <RelativeLayout
-            android:id="@+id/rlFrame"
+    <Button
+            android:id="@+id/btnUpload"
+            android:text="Get Info Passport"
             android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:background="@drawable/bg_line_frame"
-            android:layout_margin="20dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="5dp"/>
+
+    <LinearLayout
+            android:id="@+id/llProgressbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:visibility="gone"/>
+            android:orientation="vertical"
+            android:visibility="gone">
+
+        <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"/>
+        <TextView
+                android:text="Please wait..."
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17sp"
+                android:textColor="#fff"
+                android:textStyle="bold"/>
+
+    </LinearLayout>
 
 
 </RelativeLayout>

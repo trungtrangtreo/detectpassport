@@ -56,7 +56,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp-urlconnection:3.0.1"
     implementation "com.squareup.okhttp3:logging-interceptor:3.4.1"
     implementation 'com.steelkiwi:cropiwa:1.0.3'
-
+    implementation 'com.intuit.sdp:sdp-android:1.0.6'
 
     // Use local TensorFlow library
     // implementation 'org.tensorflow:tensorflow-lite-local:0.0.0'
