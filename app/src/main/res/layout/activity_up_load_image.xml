@@ -6,20 +6,27 @@
         android:layout_height="match_parent"
         tools:context=".UpLoadImageActivity">
 
-    <ImageView
+    <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/ivImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:cropToPadding="false"
-            android:src="@mipmap/ic_launcher"
-            android:layout_above="@+id/btnUpload"
-            android:scaleType="fitXY"/>
+            android:layout_above="@+id/btnUpload"/>
+
+    <!--<ImageView-->
+    <!--android:id="@+id/ivImage"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:adjustViewBounds="true"-->
+    <!--android:cropToPadding="false"-->
+    <!--android:src="@mipmap/ic_launcher"-->
+    <!--android:layout_above="@+id/btnUpload"-->
+    <!--android:scaleType="fitXY"/>-->
     <Button
             android:id="@+id/btnUpload"
             android:text="Get Info Passport"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/_35sdp"
+            android:textSize="@dimen/_12sdp"
             android:layout_alignParentBottom="true"
             android:layout_margin="5dp"/>
 
@@ -45,6 +52,4 @@
                 android:textStyle="bold"/>
 
     </LinearLayout>
-
-
 </RelativeLayout>

@@ -11,7 +11,7 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.RelativeLayout;
-import vn.spaceshare.demo.OnDetectListener;
+import vn.spaceshare.demo.callback.OnDetectListener;
 import vn.spaceshare.demo.env.BorderedText;
 import vn.spaceshare.demo.env.ImageUtils;
 import vn.spaceshare.demo.env.Logger;

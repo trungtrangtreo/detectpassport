@@ -51,9 +51,9 @@
             <RelativeLayout
                     android:id="@+id/rlFrame"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/_200sdp"
+                    android:layout_height="@dimen/_160sdp"
                     android:background="@drawable/bg_line_frame"
-                    android:layout_margin="20dp"/>
+                    android:layout_margin="@dimen/_10sdp"/>
             <TextView
                     android:id="@+id/tvSuggest"
                     android:text="Taking photos. Please do not move the camera..."

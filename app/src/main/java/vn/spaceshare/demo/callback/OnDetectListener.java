@@ -1,4 +1,4 @@
-package vn.spaceshare.demo;
+package vn.spaceshare.demo.callback;
 
 import android.graphics.RectF;
 

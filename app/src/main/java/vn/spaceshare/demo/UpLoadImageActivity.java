@@ -13,6 +13,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -31,7 +33,7 @@ import java.io.IOException;
 public class UpLoadImageActivity extends AppCompatActivity {
 
     private String path = "";
-    private ImageView ivImage;
+    private SubsamplingScaleImageView ivImage;
     private Button btnUpload;
     private ProgressBar progressBar;
     private LinearLayout llProgressbar;
@@ -52,8 +54,7 @@ public class UpLoadImageActivity extends AppCompatActivity {
 //          verifyPassport("http://192.168.0.247:5000/passport", file);
 
 //          Bitmap bitmapCustom = Bitmap.createBitmap(bitmap, x, y, w, convertDpToPx(300));
-            ivImage.setImageBitmap(exifToDegrees(path));
-//            cropImage(Uri.parse(path));
+            ivImage.setImage(ImageSource.bitmap(exifToDegrees(path)));
 
             btnUpload.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -61,7 +62,6 @@ public class UpLoadImageActivity extends AppCompatActivity {
                     verifyPassport("http://27.72.88.246:5000/passport", file);
                 }
             });
-
         }
     }
 
@@ -87,7 +87,6 @@ public class UpLoadImageActivity extends AppCompatActivity {
 
     private int convertDpToPx(int dp) {
         return Math.round(dp * (getResources().getDisplayMetrics().xdpi / DisplayMetrics.DENSITY_DEFAULT));
-
     }
 
     private Bitmap exifToDegrees(String photoPath) {

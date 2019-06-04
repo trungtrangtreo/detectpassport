@@ -1,12 +1,16 @@
 package vn.spaceshare.demo;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import vn.spaceshare.demo.model.PassportInfo;
 import vn.spaceshare.demo.util.Const;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class PassportInfoActivity extends AppCompatActivity {
 
@@ -57,8 +61,8 @@ public class PassportInfoActivity extends AppCompatActivity {
     private void setData(PassportInfo passportInfo) {
 
         tvName.setText(passportInfo.getFullName());
-        tvDateOfBirth.setText(passportInfo.getDateOfBirth());
-        tvDateOfExpiry.setText(passportInfo.getDateOfExpiry());
+        tvDateOfBirth.setText(convertDate(passportInfo.getDateOfBirth()));
+        tvDateOfExpiry.setText(convertDate(passportInfo.getDateOfExpiry()));
         tvNationality.setText(passportInfo.getNationality());
         tvSex.setText(customSex(passportInfo.getSex()));
         tvPassportNumber.setText(passportInfo.getPassportNumber());
@@ -72,5 +76,21 @@ public class PassportInfoActivity extends AppCompatActivity {
         } else {
             return "Female";
         }
+    }
+
+    private String convertDate(String date) {
+        String FORMAT_DATE_ONE = "yymmdd";
+        String FORMAT_DATE_CUSTOM = "dd/mm/yy";
+
+        try {
+            SimpleDateFormat sourceFormat = new SimpleDateFormat(FORMAT_DATE_ONE);
+            Date dateFormat = sourceFormat.parse(date);
+            sourceFormat.applyPattern(FORMAT_DATE_CUSTOM);
+            return sourceFormat.format(dateFormat);
+
+        } catch (ParseException ex) {
+
+        }
+        return date;
     }
 }
