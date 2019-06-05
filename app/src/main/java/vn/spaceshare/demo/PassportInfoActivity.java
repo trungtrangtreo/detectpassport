@@ -1,13 +1,18 @@
 package vn.spaceshare.demo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import vn.spaceshare.demo.face.LivePreviewActivity;
 import vn.spaceshare.demo.model.PassportInfo;
 import vn.spaceshare.demo.util.Const;
+import vn.spaceshare.demo.util.KeyIntent;
 
+import java.security.Key;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,7 +27,8 @@ public class PassportInfoActivity extends AppCompatActivity {
     private TextView tvPassportNumber;
     private TextView tvTitleToolBar;
     private ImageView ivBack;
-
+    private Button btnPotrait;
+    private String path = "";
     private PassportInfo passportInfo;
 
     @Override
@@ -34,6 +40,7 @@ public class PassportInfoActivity extends AppCompatActivity {
 
         if (getIntent() != null) {
             passportInfo = getIntent().getParcelableExtra(Const.PASSPORT_INFO);
+            path = getIntent().getStringExtra(KeyIntent.KEY_PATH);
             setData(passportInfo);
         }
     }
@@ -47,6 +54,7 @@ public class PassportInfoActivity extends AppCompatActivity {
         tvPassportNumber = findViewById(R.id.tvPassportNumber);
         tvTitleToolBar = findViewById(R.id.tvTitleToolBar);
         ivBack = findViewById(R.id.ivBack);
+        btnPotrait = findViewById(R.id.btnPotrait);
 
         tvTitleToolBar.setText(getString(R.string.title_passport_info));
 
@@ -54,6 +62,15 @@ public class PassportInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+
+        btnPotrait.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), LivePreviewActivity.class);
+                intent.putExtra(KeyIntent.KEY_PATH, path);
+                startActivity(intent);
             }
         });
     }
@@ -89,7 +106,6 @@ public class PassportInfoActivity extends AppCompatActivity {
             return sourceFormat.format(dateFormat);
 
         } catch (ParseException ex) {
-
         }
         return date;
     }

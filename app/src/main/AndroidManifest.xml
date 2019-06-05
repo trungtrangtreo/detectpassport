@@ -17,6 +17,8 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:replace="android:appComponentFactory">
+        <activity android:name=".CompareActivity">
+        </activity>
         <activity android:name=".PassportInfoActivity">
         </activity>
         <activity android:name=".UpLoadImageActivity">
@@ -31,12 +33,14 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
+        <activity android:name=".face.LivePreviewActivity"
+                  android:screenOrientation="portrait"/>
         <provider
-                android:name=".util.GenericFileProvider"
-                android:authorities="${applicationId}.fileprovider"
+                android:name="android.support.v4.content.FileProvider"
+                android:authorities="com.example.user.myapplication.fileprovider"
                 android:exported="false"
                 android:grantUriPermissions="true">
+
             <meta-data
                     android:name="android.support.FILE_PROVIDER_PATHS"
                     android:resource="@xml/provider_paths"/>

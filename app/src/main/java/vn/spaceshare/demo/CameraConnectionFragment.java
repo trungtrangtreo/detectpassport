@@ -603,9 +603,10 @@ public class CameraConnectionFragment extends Fragment {
         }
     }
 
-    private void startActivity(File pictureFile) {
+    private void startActivity(File pictureFile,Rect rect) {
         Intent intent = new Intent(getContext(), UpLoadImageActivity.class);
         intent.putExtra(KeyIntent.KEY_PATH, pictureFile.getAbsolutePath());
+        intent.putExtra(KeyIntent.KEY_RECT, rect);
         startActivity(intent);
     }
 
@@ -618,7 +619,7 @@ public class CameraConnectionFragment extends Fragment {
     private Size jpegSizes[] = null;
     private Size previewsize;
 
-    void getPicture() {
+    void getPicture(Rect rect) {
         if (cameraDevice == null) {
             return;
         }
@@ -665,7 +666,7 @@ public class CameraConnectionFragment extends Fragment {
                     File file12 = getOutputMediaFile();
 
                     if (file12 != null) {
-                        startActivity(file12);
+                        startActivity(file12,rect);
                     }
 
                     OutputStream outputStream = null;

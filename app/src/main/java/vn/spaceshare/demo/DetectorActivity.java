@@ -217,10 +217,10 @@ public class DetectorActivity extends CameraActivity {
                                             tvPlacePassport.setVisibility(View.GONE);
                                         }
                                     });
-
+                                    Rect rect = new Rect();
+                                    rectF.round(rect);
                                     CameraConnectionFragment fragment = (CameraConnectionFragment) fm.findFragmentById(R.id.container);
-                                    fragment.getPicture();
-                                    Log.e("trung", "call 1111");
+                                    fragment.getPicture(rect);
                                 } else {
                                     LegacyCameraConnectionFragment fragment = (LegacyCameraConnectionFragment) fm.findFragmentById(R.id.container);
                                     fragment.takePhoto();
@@ -228,8 +228,6 @@ public class DetectorActivity extends CameraActivity {
                             }
                         });
 
-
-//
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

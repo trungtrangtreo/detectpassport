@@ -6,16 +6,19 @@
         android:layout_height="match_parent"
         tools:context=".UpLoadImageActivity">
 
-    <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+
+    <ImageView
             android:id="@+id/ivImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/btnUpload"
-            android:layout_marginTop="@dimen/_10sdp"/>
-
+            android:adjustViewBounds="true"
+            android:cropToPadding="false"
+            android:src="@mipmap/ic_launcher"
+            android:layout_above="@+id/btnCompare"
+            android:scaleType="fitXY"/>
     <Button
-            android:id="@+id/btnUpload"
-            android:text="Get Info Passport"
+            android:id="@+id/btnCompare"
+            android:text="Compare Passport Vs Potrait"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_35sdp"
             android:textSize="@dimen/_12sdp"

@@ -28,7 +28,6 @@
                     android:background="@android:color/black"
                     android:orientation="vertical">
 
-
         <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
                      xmlns:tools="http://schemas.android.com/tools"
                      android:id="@+id/container"
@@ -45,7 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#FFF"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/_10sdp"
                     android:layout_gravity="center"/>
 
             <RelativeLayout
@@ -60,11 +59,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#FFF"
+                    android:textSize="@dimen/_10sdp"
                     android:layout_gravity="center"
                     android:visibility="gone"/>
-
         </LinearLayout>
-
 
         <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import android.view.View;
 import android.widget.*;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.steelkiwi.cropiwa.CropIwaView;
+import com.steelkiwi.cropiwa.config.CropIwaSaveConfig;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -37,6 +40,7 @@ public class UpLoadImageActivity extends AppCompatActivity {
     private Button btnUpload;
     private ProgressBar progressBar;
     private LinearLayout llProgressbar;
+    private Rect rect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +54,9 @@ public class UpLoadImageActivity extends AppCompatActivity {
 
         if (getIntent() != null) {
             path = getIntent().getStringExtra(KeyIntent.KEY_PATH);
+            rect = getIntent().getParcelableExtra(KeyIntent.KEY_RECT);
             File file = new File(path);
-//          verifyPassport("http://192.168.0.247:5000/passport", file);
 
-//          Bitmap bitmapCustom = Bitmap.createBitmap(bitmap, x, y, w, convertDpToPx(300));
             ivImage.setImage(ImageSource.bitmap(exifToDegrees(path)));
 
             btnUpload.setOnClickListener(new View.OnClickListener() {
@@ -62,31 +65,9 @@ public class UpLoadImageActivity extends AppCompatActivity {
                     verifyPassport("http://27.72.88.246:5000/passport", file);
                 }
             });
+
+
         }
-    }
-
-
-    private void cropImage(Uri picUri) {
-        Intent cropIntent = new Intent("com.android.camera.action.CROP");
-        //indicate image type and Uri
-        cropIntent.setDataAndType(picUri, "image/*");
-        //set crop properties
-        cropIntent.putExtra("crop", "true");
-        //indicate aspect of desired crop
-        cropIntent.putExtra("aspectX", 1);
-        cropIntent.putExtra("aspectY", 1);
-        //indicate output X and Y
-        cropIntent.putExtra("outputX", 256);
-        cropIntent.putExtra("outputY", 256);
-        //retrieve data on return
-        cropIntent.putExtra("return-data", true);
-        //start the activity - we handle returning in onActivityResult
-        startActivityForResult(cropIntent, PIC_CROP);
-    }
-
-
-    private int convertDpToPx(int dp) {
-        return Math.round(dp * (getResources().getDisplayMetrics().xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
     private Bitmap exifToDegrees(String photoPath) {
@@ -101,8 +82,6 @@ public class UpLoadImageActivity extends AppCompatActivity {
 
         Bitmap rotatedBitmap;
         Bitmap bitmap = BitmapFactory.decodeFile(photoPath);
-
-        Log.d("trung", orientation + "");
 
         switch (orientation) {
 
@@ -162,6 +141,7 @@ public class UpLoadImageActivity extends AppCompatActivity {
                         if (passportVerify.getInfoPassportV2() != null) {
                             Intent intent = new Intent(getApplicationContext(), PassportInfoActivity.class);
                             intent.putExtra(Const.PASSPORT_INFO, passportVerify.getInfoPassportV2());
+                            intent.putExtra(KeyIntent.KEY_PATH, path);
                             startActivity(intent);
                         } else {
                             Toast.makeText(UpLoadImageActivity.this, "Not get passport info. Please try again", Toast.LENGTH_SHORT).show();

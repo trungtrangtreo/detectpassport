@@ -32,6 +32,7 @@ import android.view.SurfaceHolder;
 import android.view.WindowManager;
 import com.google.android.gms.common.images.Size;
 import vn.spaceshare.demo.UpLoadImageActivity;
+import vn.spaceshare.demo.callback.DetectFaceListener;
 import vn.spaceshare.demo.face.facedetection.FrameMetadata;
 import vn.spaceshare.demo.face.facedetection.GraphicOverlay;
 import vn.spaceshare.demo.face.facedetection.VisionImageProcessor;
@@ -94,6 +95,7 @@ public class CameraSource {
     private final int requestedPreviewWidth = 480;
     private final int requestedPreviewHeight = 360;
     private final boolean requestedAutoFocus = true;
+    private DetectFaceListener detectFaceListenerl;
 
     // These instances need to be held onto to avoid GC of their underlying resources.  Even though
     // these aren't used outside of the method that creates them, they still must have hard
@@ -769,7 +771,7 @@ public class CameraSource {
                     return;
                 }
 
-                startActivity(pictureFile);
+                detectFaceListenerl.onTakePassport(pictureFile);
 
                 FileOutputStream fos = new FileOutputStream(pictureFile);
                 fos.write(data);
@@ -817,17 +819,15 @@ public class CameraSource {
         return mediaFile;
     }
 
-
-    private void startActivity(File pictureFile) {
-        Intent intent = new Intent(activity, UpLoadImageActivity.class);
-        intent.putExtra(KeyIntent.KEY_PATH, pictureFile.getAbsolutePath());
-        activity.startActivity(intent);
-    }
-
     /**
      * Cleans up graphicOverlay and child classes can do their cleanups as well .
      */
     private void cleanScreen() {
         graphicOverlay.clear();
+    }
+
+
+    public void setDetectFaceListenerl(DetectFaceListener detectFaceListenerl) {
+        this.detectFaceListenerl = detectFaceListenerl;
     }
 }

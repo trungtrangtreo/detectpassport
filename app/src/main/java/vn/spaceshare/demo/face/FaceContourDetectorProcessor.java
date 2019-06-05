@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.ml.common.FirebaseMLException;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.face.FirebaseVisionFace;
@@ -17,7 +16,6 @@ import vn.spaceshare.demo.face.facedetection.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
@@ -68,8 +66,7 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
             @NonNull GraphicOverlay graphicOverlay) {
         graphicOverlay.clear();
 
-        Log.e("111", faces.size() + "");
-        if (faces.size() > 0) {
+        if (faces.size() == 1) {
             count++;
         } else {
             count = 0;

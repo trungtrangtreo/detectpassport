@@ -14,6 +14,7 @@
 package vn.spaceshare.demo.face;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -27,10 +28,26 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Toast;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import vn.spaceshare.demo.CompareActivity;
+import vn.spaceshare.demo.PassportInfoActivity;
 import vn.spaceshare.demo.R;
+import vn.spaceshare.demo.UpLoadImageActivity;
+import vn.spaceshare.demo.api.ApiClient;
+import vn.spaceshare.demo.api.ApiService;
 import vn.spaceshare.demo.callback.DetectFaceListener;
 import vn.spaceshare.demo.face.facedetection.GraphicOverlay;
+import vn.spaceshare.demo.model.PassportVerify;
+import vn.spaceshare.demo.util.Const;
+import vn.spaceshare.demo.util.KeyIntent;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +77,8 @@ public final class LivePreviewActivity extends AppCompatActivity
     private GraphicOverlay graphicOverlay;
     private String selectedModel = FACE_CONTOUR;
     private int count = 0;
+    private String pathPassport;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +88,11 @@ public final class LivePreviewActivity extends AppCompatActivity
         setContentView(R.layout.activity_live_preview);
 
         preview = (CameraSourcePreview) findViewById(R.id.firePreview);
+
+        if (getIntent() != null) {
+            pathPassport = getIntent().getStringExtra(KeyIntent.KEY_PATH);
+        }
+
         if (preview == null) {
             Log.d(TAG, "Preview is null");
         }
@@ -266,7 +290,16 @@ public final class LivePreviewActivity extends AppCompatActivity
     @Override
     public void onSuccess() {
         if (cameraSource != null) {
+            cameraSource.setDetectFaceListenerl(this);
             cameraSource.takePicture();
         }
+    }
+
+    @Override
+    public void onTakePassport(File fileFace) {
+        Intent intent = new Intent(getApplicationContext(), CompareActivity.class);
+        intent.putExtra(KeyIntent.KEY_PATH, pathPassport);
+        intent.putExtra(KeyIntent.KEY_PATH_FACE, fileFace.getAbsolutePath());
+        startActivity(intent);
     }
 }

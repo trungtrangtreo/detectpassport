@@ -10,6 +10,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import vn.spaceshare.demo.callback.OnDetectListener;
 import vn.spaceshare.demo.env.BorderedText;
@@ -192,7 +193,6 @@ public class MultiBoxTracker {
             Rect rect = new Rect();
             trackedRecognition.location.round(rect);
 
-
             if (potential.first >= 0.5) {
                 count++;
             }
@@ -203,7 +203,7 @@ public class MultiBoxTracker {
 //                Log.e("111", "call");
 //            }
 
-            if (count >= 3) {
+            if (count >= 3 && isViewContains(frame, rect)) {
                 listener.onSuccess(potential.second.getLocation());
             }
             if (trackedObjects.size() >= COLORS.length) {
@@ -233,6 +233,16 @@ public class MultiBoxTracker {
         }
         return true;
     }
+
+    private boolean isViewContains(View view, Rect rectDraw) {
+
+        int[] l = new int[2];
+        view.getLocationOnScreen(l);
+        Rect rect = new Rect(l[0], l[1], l[0] + view.getWidth(), l[1] + view.getHeight());
+
+        return rect.contains(rectDraw.top, rectDraw.left);
+    }
+
 
     public void setListener(OnDetectListener listener) {
         this.listener = listener;
