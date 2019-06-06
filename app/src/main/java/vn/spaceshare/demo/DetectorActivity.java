@@ -64,6 +64,8 @@ public class DetectorActivity extends CameraActivity {
 
     private BorderedText borderedText;
 
+    private boolean isStartActivity;
+
     @Override
     public void onPreviewSizeChosen(final Size size, final int rotation) {
         final float textSizePx =
@@ -132,6 +134,7 @@ public class DetectorActivity extends CameraActivity {
     @Override
     public synchronized void onResume() {
         super.onResume();
+        isStartActivity = true;
         tvSuggest.setVisibility(View.GONE);
         tvPlacePassport.setVisibility(View.VISIBLE);
     }
@@ -219,8 +222,11 @@ public class DetectorActivity extends CameraActivity {
                                     });
                                     Rect rect = new Rect();
                                     rectF.round(rect);
-                                    CameraConnectionFragment fragment = (CameraConnectionFragment) fm.findFragmentById(R.id.container);
-                                    fragment.getPicture(rect);
+                                    if (isStartActivity) {
+                                        CameraConnectionFragment fragment = (CameraConnectionFragment) fm.findFragmentById(R.id.container);
+                                        fragment.getPicture(rect);
+                                        isStartActivity = false;
+                                    }
                                 } else {
                                     LegacyCameraConnectionFragment fragment = (LegacyCameraConnectionFragment) fm.findFragmentById(R.id.container);
                                     fragment.takePhoto();

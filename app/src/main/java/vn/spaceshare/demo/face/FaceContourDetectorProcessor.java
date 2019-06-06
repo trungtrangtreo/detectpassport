@@ -38,11 +38,13 @@ public class FaceContourDetectorProcessor extends VisionProcessorBase<List<Fireb
         this.count = count;
         FirebaseVisionFaceDetectorOptions options =
                 new FirebaseVisionFaceDetectorOptions.Builder()
+                        .setLandmarkMode(FirebaseVisionFaceDetectorOptions.NO_CONTOURS)
+                        .setClassificationMode(FirebaseVisionFaceDetectorOptions.NO_CONTOURS)
+                        .setPerformanceMode(FirebaseVisionFaceDetectorOptions.NO_CONTOURS)
                         .build();
 
         detector = FirebaseVision.getInstance().getVisionFaceDetector(options);
     }
-
 
     @Override
     public void stop() {

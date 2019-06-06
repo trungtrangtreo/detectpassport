@@ -1,17 +1,15 @@
 package vn.spaceshare.demo;
 
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.util.Size;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.*;
-import com.davemorrissey.labs.subscaleview.ImageSource;
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -20,7 +18,6 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import vn.spaceshare.demo.api.ApiClient;
 import vn.spaceshare.demo.api.ApiService;
-import vn.spaceshare.demo.face.LivePreviewActivity;
 import vn.spaceshare.demo.model.FaceInfo;
 import vn.spaceshare.demo.util.Const;
 import vn.spaceshare.demo.util.KeyIntent;
@@ -130,13 +127,18 @@ public class CompareActivity extends AppCompatActivity {
                     public void onSuccess(FaceInfo faceInfo) {
                         llProgressbar.setVisibility(View.GONE);
                         if (faceInfo.getCode().equals("200")) {
-                            if (faceInfo.getFaceMatching() != null && faceInfo.getFaceMatching()) {
-                                Toast.makeText(CompareActivity.this, "Matching", Toast.LENGTH_SHORT).show();
+                            if (faceInfo.getFaceMatching() != null) {
+                                if (faceInfo.getFaceMatching()) {
+                                    showDialog("Matching passport and face");
+                                } else {
+                                    showDialog("Not matching passport and face");
+                                }
+
                             } else {
-                                Toast.makeText(CompareActivity.this, faceInfo.getMessage(), Toast.LENGTH_SHORT).show();
+                                showDialog(faceInfo.getMessage());
                             }
                         } else {
-                            Toast.makeText(CompareActivity.this, faceInfo.getMessage(), Toast.LENGTH_SHORT).show();
+                            showDialog(faceInfo.getMessage());
                         }
 
                     }
@@ -148,5 +150,16 @@ public class CompareActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    private void showDialog(String message) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setMessage(message)
+                .setMessage(message)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialoginterface, int i) {
+
+                    }
+                }).show();
     }
 }

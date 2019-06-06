@@ -745,7 +745,11 @@ public class CameraSource {
                     Log.e(TAG, "Exception thrown from receiver.", t);
                 } finally {
                     if (data.array() != null) {
-                        camera.addCallbackBuffer(data.array());
+                        try {
+                            camera.addCallbackBuffer(data.array());
+                        } catch (Throwable t) {
+                            Log.e(TAG, "Exception thrown from receiver.", t);
+                        }
                     }
                 }
             }

@@ -15,7 +15,7 @@
 
     <Button
             android:id="@+id/btnUpload"
-            android:text="Get Info Passport"
+            android:text="Get Passport Info"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_35sdp"
             android:textSize="@dimen/_12sdp"
