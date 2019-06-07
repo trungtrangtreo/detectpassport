@@ -169,7 +169,6 @@ public class MultiBoxTracker {
                 continue;
             }
 
-
             rectsToTrack.add(new Pair<Float, Recognition>(result.getConfidence(), result));
         }
 
@@ -179,7 +178,6 @@ public class MultiBoxTracker {
             count = 0;
             return;
         }
-
 
         trackedObjects.clear();
         for (final Pair<Float, Recognition> potential : rectsToTrack) {
@@ -209,7 +207,6 @@ public class MultiBoxTracker {
             if (trackedObjects.size() >= COLORS.length) {
                 break;
             }
-
         }
     }
 
@@ -235,10 +232,9 @@ public class MultiBoxTracker {
     }
 
     private boolean isViewContains(View view, Rect rectDraw) {
-
         int[] l = new int[2];
         view.getLocationOnScreen(l);
-        Rect rect = new Rect(l[0], l[1], l[0] + view.getWidth(), l[1] + view.getHeight());
+        Rect rect = new Rect(l[0] , l[1] , (l[0] + view.getWidth()) , (l[1] + view.getHeight()));
 
         return rect.contains(rectDraw.top, rectDraw.left);
     }

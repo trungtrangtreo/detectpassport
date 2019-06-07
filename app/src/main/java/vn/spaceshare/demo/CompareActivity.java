@@ -129,20 +129,18 @@ public class CompareActivity extends AppCompatActivity {
                         if (faceInfo.getCode().equals("200")) {
                             if (faceInfo.getFaceMatching() != null) {
                                 if (faceInfo.getFaceMatching()) {
-                                    showDialog("Matching passport and face");
+                                    showDialog("Matching passport and potrait");
                                 } else {
-                                    showDialog("Not matching passport and face");
+                                    showDialog("Not matching passport and potrait");
                                 }
 
                             } else {
                                 showDialog(faceInfo.getMessage());
                             }
                         } else {
-                            showDialog(faceInfo.getMessage());
+                            showDialog("Not detect face in passport or potrait");
                         }
-
                     }
-
                     @Override
                     public void onError(Throwable e) {
                         Toast.makeText(CompareActivity.this, "Error", Toast.LENGTH_SHORT).show();
