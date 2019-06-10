@@ -1,10 +1,9 @@
 package vn.spaceshare.demo;
 
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +17,7 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.steelkiwi.cropiwa.CropIwaView;
 import com.steelkiwi.cropiwa.config.CropIwaSaveConfig;
+import com.theartofdev.edmodo.cropper.CropImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -41,6 +41,7 @@ public class UpLoadImageActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private LinearLayout llProgressbar;
     private Rect rect;
+    private CropImageView cropImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,22 +52,25 @@ public class UpLoadImageActivity extends AppCompatActivity {
         btnUpload = findViewById(R.id.btnUpload);
         progressBar = findViewById(R.id.progressBar);
         llProgressbar = findViewById(R.id.llProgressbar);
+        cropImageView = findViewById(R.id.cropImageView);
 
         if (getIntent() != null) {
             path = getIntent().getStringExtra(KeyIntent.KEY_PATH);
             rect = getIntent().getParcelableExtra(KeyIntent.KEY_RECT);
             File file = new File(path);
 
-            ivImage.setImage(ImageSource.bitmap(exifToDegrees(path)));
+            cropImageView.setImageBitmap(exifToDegrees(path));
+
+            cropImageView.setCropRect(rect);
 
             btnUpload.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    verifyPassport("http://27.72.88.246:5000/passport", file);
+//                    verifyPassport("http://27.72.88.246:5000/passport", file);
+                    cropImageView.setVisibility(View.GONE);
+                    ivImage.setImage(ImageSource.bitmap(cropImageView.getCroppedImage()));
                 }
             });
-
-
         }
     }
 
@@ -109,6 +113,43 @@ public class UpLoadImageActivity extends AppCompatActivity {
         }
         return rotatedBitmap;
     }
+
+    public static float convertDpToPixel(float dp, Context context) {
+        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+    }
+
+    private void performCrop(Uri uri) {
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
+
+        try {
+            //call the standard crop action intent (the user device may not support it)
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+            //indicate image type and Uri
+            cropIntent.setDataAndType(uri, "image/*");
+            //set crop properties
+            cropIntent.putExtra("crop", "true");
+            //indicate aspect of desired crop
+            cropIntent.putExtra("aspectX", 1);
+            cropIntent.putExtra("aspectY", 1);
+            //indicate output X and Y
+            cropIntent.putExtra("outputX", width);
+            cropIntent.putExtra("outputY", convertDpToPixel(200, this));
+            //retrieve data on return
+            cropIntent.putExtra("return-data", true);
+            //start the activity - we handle returning in onActivityResult
+            startActivityForResult(cropIntent, PIC_CROP);
+        } catch (ActivityNotFoundException anfe) {
+            //display an error message
+            String errorMessage = "Whoops - your device doesn't support the crop action!";
+            Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+
 
     public static Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
@@ -166,13 +207,14 @@ public class UpLoadImageActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PIC_CROP) {
-            if (data != null) {
-                // get the returned data
-                Bundle extras = data.getExtras();
-                // get the cropped bitmap
-                Bitmap selectedBitmap = extras.getParcelable("data");
-            }
+
+        if (requestCode == PIC_CROP && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            //get the cropped bitmap
+            Bitmap thePic = extras.getParcelable("data");
+            ivImage.setImage(ImageSource.bitmap(thePic));
+
+            // Do what you want to do with the pic here
         }
     }
 }

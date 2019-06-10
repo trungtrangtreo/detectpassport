@@ -18,16 +18,9 @@ package vn.spaceshare.demo;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraMetadata;
-import android.hardware.camera2.CaptureRequest;
-import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -37,11 +30,13 @@ import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
-import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-
+import vn.spaceshare.demo.customview.AutoFitTextureView;
+import vn.spaceshare.demo.env.ImageUtils;
+import vn.spaceshare.demo.env.Logger;
+import vn.spaceshare.demo.util.KeyIntent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -49,11 +44,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
-import vn.spaceshare.demo.customview.AutoFitTextureView;
-import vn.spaceshare.demo.env.ImageUtils;
-import vn.spaceshare.demo.env.Logger;
-import vn.spaceshare.demo.util.KeyIntent;
 
 public class LegacyCameraConnectionFragment extends Fragment {
     private static final Logger LOGGER = new Logger();
@@ -203,8 +193,8 @@ public class LegacyCameraConnectionFragment extends Fragment {
 
     @Override
     public void onPause() {
-        stopCamera();
-        stopBackgroundThread();
+//      stopCamera();
+//      stopBackgroundThread();
         super.onPause();
     }
 
@@ -265,7 +255,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
         if (camera != null) {
             camera.takePicture(null, null, mPicture);
         }
-        camera = null;
+      camera = null;
     }
 
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {

@@ -3,7 +3,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="match_parent" xmlns:custom="http://schemas.android.com/apk/res-auto"
         tools:context=".UpLoadImageActivity">
 
     <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -13,6 +13,12 @@
             android:layout_above="@+id/btnUpload"
             android:layout_marginTop="@dimen/_10sdp"/>
 
+    <com.theartofdev.edmodo.cropper.CropImageView
+            android:id="@+id/cropImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            custom:cropMaxCropResultWidthPX="4000"
+            custom:cropMaxCropResultHeightPX="1500"/>
     <Button
             android:id="@+id/btnUpload"
             android:text="Get Passport Info"

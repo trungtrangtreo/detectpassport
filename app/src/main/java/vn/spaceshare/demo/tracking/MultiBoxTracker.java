@@ -144,6 +144,8 @@ public class MultiBoxTracker {
         }
     }
 
+
+
     private void processResults(final List<Recognition> results, RelativeLayout frame, long timestamp) {
         final List<Pair<Float, Recognition>> rectsToTrack = new LinkedList<Pair<Float, Recognition>>();
 

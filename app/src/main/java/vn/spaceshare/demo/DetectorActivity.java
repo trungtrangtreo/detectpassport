@@ -5,7 +5,6 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
 import android.view.View;
@@ -106,6 +105,7 @@ public class DetectorActivity extends CameraActivity {
         LOGGER.i("Initializing at size %dx%d", previewWidth, previewHeight);
         rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Config.ARGB_8888);
         croppedBitmap = Bitmap.createBitmap(cropSize, cropSize, Config.ARGB_8888);
+
 
         frameToCropTransform =
                 ImageUtils.getTransformationMatrix(
@@ -252,6 +252,8 @@ public class DetectorActivity extends CameraActivity {
                     }
                 });
     }
+
+
 
     @Override
     protected int getLayoutId() {
