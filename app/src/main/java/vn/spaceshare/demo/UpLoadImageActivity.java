@@ -3,20 +3,23 @@ package vn.spaceshare.demo;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
-import com.steelkiwi.cropiwa.CropIwaView;
-import com.steelkiwi.cropiwa.config.CropIwaSaveConfig;
 import com.theartofdev.edmodo.cropper.CropImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableSingleObserver;
@@ -59,16 +62,12 @@ public class UpLoadImageActivity extends AppCompatActivity {
             rect = getIntent().getParcelableExtra(KeyIntent.KEY_RECT);
             File file = new File(path);
 
-            cropImageView.setImageBitmap(exifToDegrees(path));
-
-            cropImageView.setCropRect(rect);
+            ivImage.setImage(ImageSource.bitmap(exifToDegrees(path)));
 
             btnUpload.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    verifyPassport("http://27.72.88.246:5000/passport", file);
-                    cropImageView.setVisibility(View.GONE);
-                    ivImage.setImage(ImageSource.bitmap(cropImageView.getCroppedImage()));
+                    verifyPassport("http://27.72.88.246:5000/passport", file);
                 }
             });
         }
@@ -150,7 +149,6 @@ public class UpLoadImageActivity extends AppCompatActivity {
         }
     }
 
-
     public static Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
@@ -189,7 +187,6 @@ public class UpLoadImageActivity extends AppCompatActivity {
                         }
                         llProgressbar.setVisibility(View.GONE);
                         btnUpload.setEnabled(true);
-
                     }
 
                     @Override

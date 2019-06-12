@@ -2,9 +2,18 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" xmlns:custom="http://schemas.android.com/apk/res-auto"
+        xmlns:custom="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent" android:layout_height="match_parent"
         tools:context=".UpLoadImageActivity">
+
+
+    <com.theartofdev.edmodo.cropper.CropImageView
+            android:id="@+id/cropImageView"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            custom:cropMaxCropResultWidthPX="4000"
+            custom:cropMaxCropResultHeightPX="1500"/>
 
     <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/ivImage"
@@ -13,12 +22,7 @@
             android:layout_above="@+id/btnUpload"
             android:layout_marginTop="@dimen/_10sdp"/>
 
-    <com.theartofdev.edmodo.cropper.CropImageView
-            android:id="@+id/cropImageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            custom:cropMaxCropResultWidthPX="4000"
-            custom:cropMaxCropResultHeightPX="1500"/>
+
     <Button
             android:id="@+id/btnUpload"
             android:text="Get Passport Info"

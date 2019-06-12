@@ -1,20 +1,23 @@
 package vn.spaceshare.demo.env;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
-import android.graphics.Rect;
-import android.graphics.Typeface;
+import com.theartofdev.edmodo.cropper.CropImageView;
+import vn.spaceshare.demo.callback.OnDetectListener;
+
 import java.util.Vector;
 
-/** A class that encapsulates the tedious bits of rendering legible, bordered text onto a canvas. */
+/**
+ * A class that encapsulates the tedious bits of rendering legible, bordered text onto a canvas.
+ */
 public class BorderedText {
     private final Paint interiorPaint;
-    private final Paint exteriorPaint;
+    public static Paint exteriorPaint;
 
     private final float textSize;
+
+    private OnDetectListener listener;
 
     /**
      * Creates a left-aligned bordered text object with a white interior, and a black exterior with
@@ -32,7 +35,7 @@ public class BorderedText {
      *
      * @param interiorColor the interior text color
      * @param exteriorColor the exterior text color
-     * @param textSize text size in pixels
+     * @param textSize      text size in pixels
      */
     public BorderedText(final int interiorColor, final int exteriorColor, final float textSize) {
         interiorPaint = new Paint();
@@ -71,7 +74,17 @@ public class BorderedText {
         Paint paint = new Paint(bgPaint);
         paint.setStyle(Paint.Style.FILL);
         paint.setAlpha(160);
+
+
+        RectF rectF = new RectF(posX, (posY + (int) (textSize)), (posX + (int) (width)), posY);
+
+        Rect rect = new Rect();
+        rectF.round(rect);
+
+//        listener.onSuccess(rectF);
+
         canvas.drawRect(posX, (posY + (int) (textSize)), (posX + (int) (width)), posY, paint);
+
 
         canvas.drawText(text, posX, (posY + textSize), interiorPaint);
     }
@@ -109,5 +122,10 @@ public class BorderedText {
     public void setTextAlign(final Align align) {
         interiorPaint.setTextAlign(align);
         exteriorPaint.setTextAlign(align);
+    }
+
+
+    public void setListener(OnDetectListener listener) {
+        this.listener = listener;
     }
 }

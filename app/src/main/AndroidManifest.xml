@@ -16,6 +16,7 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
+            android:usesCleartextTraffic="true"
             tools:replace="android:appComponentFactory">
         <activity android:name=".CompareActivity">
         </activity>
@@ -24,7 +25,7 @@
         <activity android:name=".UpLoadImageActivity">
         </activity>
         <activity
-                android:name=".DetectorActivity"
+                android:name=".CameraActivity"
                 android:label="@string/activity_name_detection"
                 android:screenOrientation="portrait">
             <intent-filter>

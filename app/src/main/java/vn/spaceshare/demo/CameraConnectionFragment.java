@@ -7,7 +7,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.*;
 import android.hardware.camera2.*;
@@ -19,7 +18,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -27,11 +25,10 @@ import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.*;
-import android.view.animation.RotateAnimation;
 import android.widget.Toast;
+import vn.spaceshare.demo.callback.CaptureListener;
 import vn.spaceshare.demo.customview.AutoFitTextureView;
 import vn.spaceshare.demo.env.Logger;
-import vn.spaceshare.demo.util.KeyIntent;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -40,8 +37,12 @@ import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+
 @SuppressLint("ValidFragment")
 public class CameraConnectionFragment extends Fragment {
+
+    private CaptureListener listener;
+
     private static final Logger LOGGER = new Logger();
 
     /**
@@ -603,14 +604,6 @@ public class CameraConnectionFragment extends Fragment {
         }
     }
 
-    private void startActivity(File pictureFile, Rect rect) {
-        Log.e("trung", "call");
-        Intent intent = new Intent(getContext(), UpLoadImageActivity.class);
-        intent.putExtra(KeyIntent.KEY_PATH, pictureFile.getAbsolutePath());
-        intent.putExtra(KeyIntent.KEY_RECT, rect);
-        startActivity(intent);
-    }
-
     private File createImageFile(File galleryFolder) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "image_" + timeStamp + "_";
@@ -667,7 +660,7 @@ public class CameraConnectionFragment extends Fragment {
                     File file12 = getOutputMediaFile();
 
                     if (file12 != null) {
-                        startActivity(file12, rect);
+                        listener.onCapture(file12);
                     }
 
                     OutputStream outputStream = null;
@@ -751,27 +744,8 @@ public class CameraConnectionFragment extends Fragment {
         return mediaFile;
     }
 
-    public static Bitmap toOvalBitmap(@NonNull Bitmap bitmap, RectF rect) {
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        Bitmap output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(output);
-
-        int color = 0xff424242;
-        Paint paint = new Paint();
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-
-        canvas.drawOval(rect, paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, 0, 0, paint);
-
-        bitmap.recycle();
-
-        return output;
+    public void setListener(CaptureListener listener) {
+        this.listener = listener;
     }
 }
 

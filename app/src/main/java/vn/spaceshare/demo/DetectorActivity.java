@@ -1,14 +1,18 @@
 package vn.spaceshare.demo;
 
+import android.content.Intent;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
+import android.hardware.SensorListener;
+import android.hardware.SensorManager;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentManager;
 import android.util.Size;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
+import vn.spaceshare.demo.callback.CaptureListener;
 import vn.spaceshare.demo.callback.OnDetectListener;
 import vn.spaceshare.demo.customview.OverlayView;
 import vn.spaceshare.demo.customview.OverlayView.DrawCallback;
@@ -18,7 +22,9 @@ import vn.spaceshare.demo.env.Logger;
 import vn.spaceshare.demo.tflite.Classifier;
 import vn.spaceshare.demo.tflite.TFLiteObjectDetectionAPIModel;
 import vn.spaceshare.demo.tracking.MultiBoxTracker;
+import vn.spaceshare.demo.util.KeyIntent;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +33,8 @@ import java.util.List;
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
  * objects.
  */
-public class DetectorActivity extends CameraActivity {
+
+public class DetectorActivity extends CameraActivity implements CaptureListener, SensorListener {
     private static final Logger LOGGER = new Logger();
 
     // Configuration values for the prepackaged SSD model.
@@ -65,8 +72,38 @@ public class DetectorActivity extends CameraActivity {
 
     private boolean isStartActivity;
 
+    private CameraConnectionFragment fragment;
+
+    private FragmentManager fm;
+
+    private SensorManager sensorMgr;
+
+    private static final int FORCE_THRESHOLD = 350;
+    private static final int TIME_THRESHOLD = 100;
+    private static final int SHAKE_TIMEOUT = 500;
+    private static final int SHAKE_DURATION = 1000;
+    private static final int SHAKE_COUNT = 3;
+
+    private SensorManager mSensorMgr;
+    private float mLastX = -1.0f, mLastY = -1.0f, mLastZ = -1.0f;
+    private long mLastTime;
+    private int mShakeCount = 0;
+    private long mLastShake;
+    private long mLastForce;
+    private boolean isShake = false;
+
     @Override
     public void onPreviewSizeChosen(final Size size, final int rotation) {
+
+        fm = getSupportFragmentManager();
+        sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorMgr.registerListener(this,
+                SensorManager.SENSOR_ACCELEROMETER,
+                SensorManager.SENSOR_DELAY_GAME);
+
+        fragment = (CameraConnectionFragment) fm.findFragmentById(R.id.container);
+        fragment.setListener(this);
+
         final float textSizePx =
                 TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE_DIP, getResources().getDisplayMetrics());
@@ -89,9 +126,7 @@ public class DetectorActivity extends CameraActivity {
         } catch (final IOException e) {
             e.printStackTrace();
             LOGGER.e(e, "Exception initializing classifier!");
-            Toast toast =
-                    Toast.makeText(
-                            getApplicationContext(), "Classifier could not be initialized", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(), "Classifier could not be initialized", Toast.LENGTH_SHORT);
             toast.show();
             finish();
         }
@@ -121,10 +156,10 @@ public class DetectorActivity extends CameraActivity {
                 new DrawCallback() {
                     @Override
                     public void drawCallback(final Canvas canvas) {
-                        tracker.draw(canvas);
-                        if (isDebug()) {
-                            tracker.drawDebug(canvas);
-                        }
+                        tracker.draw(canvas, rlFrame);
+//                        if (isDebug()) {
+//                            tracker.drawDebug(canvas);
+//                        }
                     }
                 });
 
@@ -138,6 +173,7 @@ public class DetectorActivity extends CameraActivity {
         tvSuggest.setVisibility(View.GONE);
         tvPlacePassport.setVisibility(View.VISIBLE);
     }
+
 
     @Override
     protected void processImage() {
@@ -163,7 +199,6 @@ public class DetectorActivity extends CameraActivity {
         if (SAVE_PREVIEW_BITMAP) {
             ImageUtils.saveBitmap(croppedBitmap);
         }
-
         runInBackground(
                 new Runnable() {
                     @Override
@@ -195,19 +230,14 @@ public class DetectorActivity extends CameraActivity {
                             final RectF location = result.getLocation();
                             if (location != null && result.getConfidence() >= minimumConfidence) {
 
-
                                 Rect rect = new Rect();
                                 location.round(rect);
                                 canvas.drawRect(location, paint);
-
                                 cropToFrameTransform.mapRect(location);
-
                                 result.setLocation(location);
                                 mappedRecognitions.add(result);
                             }
                         }
-
-                        FragmentManager fm = getSupportFragmentManager();
 
                         tracker.setListener(new OnDetectListener() {
                             @Override
@@ -223,7 +253,6 @@ public class DetectorActivity extends CameraActivity {
                                     Rect rect = new Rect();
                                     rectF.round(rect);
                                     if (isStartActivity) {
-                                        CameraConnectionFragment fragment = (CameraConnectionFragment) fm.findFragmentById(R.id.container);
                                         fragment.getPicture(rect);
                                         isStartActivity = false;
                                     }
@@ -244,7 +273,7 @@ public class DetectorActivity extends CameraActivity {
                                 }
                             }
                         });
-//                        trackingOverlay.setVisibility(View.GONE);
+//                      trackingOverlay.setVisibility(View.GONE);
 
                         tracker.trackResults(mappedRecognitions, currTimestamp, rlFrame);
                         trackingOverlay.postInvalidate();
@@ -252,7 +281,6 @@ public class DetectorActivity extends CameraActivity {
                     }
                 });
     }
-
 
 
     @Override
@@ -263,6 +291,41 @@ public class DetectorActivity extends CameraActivity {
     @Override
     protected Size getDesiredPreviewFrameSize() {
         return DESIRED_PREVIEW_SIZE;
+    }
+
+
+    @Override
+    public void onSensorChanged(int sensor, float[] values) {
+
+        if (sensor != SensorManager.SENSOR_ACCELEROMETER) return;
+        long now = System.currentTimeMillis();
+
+        if ((now - mLastForce) > SHAKE_TIMEOUT) {
+            mShakeCount = 0;
+        }
+
+        if ((now - mLastTime) > TIME_THRESHOLD) {
+            long diff = now - mLastTime;
+            float speed = Math.abs(values[SensorManager.DATA_X] + values[SensorManager.DATA_Y] + values[SensorManager.DATA_Z] - mLastX - mLastY - mLastZ) / diff * 10000;
+            if (speed > FORCE_THRESHOLD) {
+                if ((++mShakeCount >= SHAKE_COUNT) && (now - mLastShake > SHAKE_DURATION)) {
+                    mLastShake = now;
+                    mShakeCount = 0;
+                    isShake = true;
+                }
+                mLastForce = now;
+            }
+            isShake = false;
+            mLastTime = now;
+            mLastX = values[SensorManager.DATA_X];
+            mLastY = values[SensorManager.DATA_Y];
+            mLastZ = values[SensorManager.DATA_Z];
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(int sensor, int accuracy) {
+
     }
 
     // Which detection model to use: by default uses Tensorflow Object Detection API frozen
@@ -279,5 +342,16 @@ public class DetectorActivity extends CameraActivity {
     @Override
     protected void setNumThreads(final int numThreads) {
         runInBackground(() -> detector.setNumThreads(numThreads));
+    }
+
+    @Override
+    public void onCapture(File file) {
+        startActivity(file);
+    }
+
+    private void startActivity(File pictureFile) {
+        Intent intent = new Intent(this, UpLoadImageActivity.class);
+        intent.putExtra(KeyIntent.KEY_PATH, pictureFile.getAbsolutePath());
+        startActivity(intent);
     }
 }

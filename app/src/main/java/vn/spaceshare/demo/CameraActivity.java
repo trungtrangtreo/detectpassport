@@ -104,9 +104,8 @@ public abstract class CameraActivity extends AppCompatActivity
                         } else {
                             gestureLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                         }
-                        //                int width = bottomSheetLayout.getMeasuredWidth();
+                        //  int width = bottomSheetLayout.getMeasuredWidth();
                         int height = gestureLayout.getMeasuredHeight();
-
                         sheetBehavior.setPeekHeight(height);
                     }
                 });
@@ -391,7 +390,7 @@ public abstract class CameraActivity extends AppCompatActivity
                         (facing == CameraCharacteristics.LENS_FACING_EXTERNAL)
                                 || isHardwareLevelSupported(
                                 characteristics, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
-//                useCamera2API = true;
+//              useCamera2API = false;
                 LOGGER.i("Camera API lv2?: %s", useCamera2API);
                 return cameraId;
             }
