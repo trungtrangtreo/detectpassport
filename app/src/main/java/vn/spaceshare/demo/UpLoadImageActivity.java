@@ -32,7 +32,6 @@ import vn.spaceshare.demo.api.ApiService;
 import vn.spaceshare.demo.model.PassportVerify;
 import vn.spaceshare.demo.util.Const;
 import vn.spaceshare.demo.util.KeyIntent;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -62,7 +61,7 @@ public class UpLoadImageActivity extends AppCompatActivity {
             rect = getIntent().getParcelableExtra(KeyIntent.KEY_RECT);
             File file = new File(path);
 
-            ivImage.setImage(ImageSource.bitmap(exifToDegrees(path)));
+            ivImage.setImage(ImageSource.bitmap(BitmapFactory.decodeFile(path)));
 
             btnUpload.setOnClickListener(new View.OnClickListener() {
                 @Override

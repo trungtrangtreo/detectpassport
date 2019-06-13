@@ -267,7 +267,7 @@ public class DetectorActivity extends CameraActivity implements CaptureListener,
                             @Override
                             public void run() {
                                 if (mappedRecognitions.size() > 0) {
-                                    trackingOverlay.setVisibility(View.GONE);
+                                    trackingOverlay.setVisibility(View.VISIBLE);
                                 } else {
                                     trackingOverlay.setVisibility(View.GONE);
                                 }
